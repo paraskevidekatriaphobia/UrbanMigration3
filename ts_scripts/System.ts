@@ -228,22 +228,132 @@ module ECS {
     declare var Stats: any;
     declare var dat: any;
     // declare var d3Graphs:any;
+    
+    let citylistname : string[] = new Array("Hokaido","Aomori","Iwate","Miyagi","Akita",
+    "Yamkata","Fukushima","Ibaraki","Tochigi","Gunma","Saitama","Chiba","Kanagawa","Niigat",
+    "Toyama","Ishikawa","Fukui","Yamanashi","Nagano","Gifu","Shizuoka","Aichi","Mie",
+    "Shiga","Kyoto","Osaka","Hyogo","Nara","Wakayama","Tottori","Shimane","Okayama","Hiroshima",
+    "Yamaguchi","Tokushima","Kagawa","Ehime","Kouchi","Fukuoka","Saga","Nagasaki",
+    "Kumamoto","Ooita","Miyazaki","Kagoshima",);
+    
+    let citylistname2 : string[] = new Array("hokaido","aomori","iwate","miyagi","akita",
+    "aamkata","fukushima","ibaraki","tochigi","gunma","saitama","chiba","kanagawa","niigat",
+    "Toyama","Ishikawa","Fukui","Yamanashi","Nagano","Gifu","Shizuoka","Aichi","Mie",
+    "shiga","kyoto","osaka","hyogo","nara","wakayama","tottori","shimane","okayama","hiroshima",
+    "Yamaguchi","Tokushima","Kagawa","Ehime","Kouchi","Fukuoka","Saga","Nagasaki",
+    "kumamoto","ooita","miyazaki","kagoshima",);
+    
+    /*citylistname.push("A");
+    citylistname.push("B");
+    citylistname.push("C");
+    citylistname.push("D");*/
 
     export class ThreeJsSystem extends System {
         GlobalParams: Utils.HashSet<any>;
         CityCodeMap:any;
         CityShowMap:any;
+        
         constructor() {
+           
+
             super("threejs");
             this.GlobalParams = new Utils.HashSet<any>();
             this.CityCodeMap = {
-                Hokaido : "01000",
-                Aomori : "02000"
+                Hokaido: "01000",
+                Aomori: "02000",
+                Iwate : "03000",
+                Miyagi : "04000",
+                Akita : "05000",
+                Yamakata : "06000",
+                Fukushima : "07000",
+                Ibaraki : "08000",
+                Tochigi : "09000",
+                Gunma : "10000",
+                Saitama : "11000",
+                Chiba : "12000",
+                Kanagawa : "14000",
+                Niigata : "15000",
+                Toyama : "16000",
+                Ishikawa : "17000",
+                Fukui : "18000",
+                Yamanashi : "19000",
+                Nagano : "20000",
+                Gifu : "21000",
+                Shizuoka : "22000",
+                Aichi : "23000",
+                Mie : "24000",
+                Shiga : "25000",
+                Kyoto : "26000",
+                Osaka : "27000",
+                Hyogo : "28000",
+                Nara : "29000",
+                Wakayama : "30000",
+                Tottori : "31000",
+                Shimane : "32000",
+                Okayama : "33000",
+                Hiroshima : "34000",
+                Yamaguchi : "35000",
+                Tokushima : "36000",
+                Kagawa : "37000",
+                Ehime : "38000",
+                Kouchi : "39000",
+                Fukuoka : "40000",
+                Saga : "41000",
+                Nagasaki : "42000",
+                Kumamoto : "43000",
+                Ooita : "44000",
+                Miyazaki : "45000",
+                Kagoshima : "46000",
+                Okinawa : "47000"
             };
 
             this.CityShowMap = {
-                Hokaido : true,
-                Aomori : true
+                Hokaido: true,
+                Aomori: true,
+                Iwate : true,
+                Miyagi : true,
+                Akita : true,
+                Yamakata : true,
+                Fukushima : true,
+                Ibaraki : true,
+                Tochigi : true,
+                Gunma : true,
+                Saitama : true,
+                Chiba : true,
+                Kanagawa : true,
+                Niigata : true,
+                Toyama : true,
+                Ishikawa : true,
+                Fukui : true,
+                Yamanashi : true,
+                Nagano : true,
+                Gifu : true,
+                Shizuoka : true,
+                Aichi : true,
+                Mie : true,
+                Shiga : true,
+                Kyoto : true,
+                Osaka : true,
+                Hyogo : true,
+                Nara : true,
+                Wakayama : true,
+                Tottori : true,
+                Shimane : true,
+                Okayama : true,
+                Hiroshima : true,
+                Yamaguchi : true,
+                Tokushima : true,
+                Kagawa : true,
+                Ehime : true,
+                Kouchi : true,
+                Fukuoka : true,
+                Saga : true,
+                Nagasaki : true,
+                Kumamoto : true,
+                Ooita : true,
+                Miyazaki : true,
+                Kagoshima : true,
+                Okinawa : true
             };
 
         }
@@ -585,12 +695,28 @@ module ECS {
 
             var GlobalParams = this.GlobalParams;
             var osmSwitch = GlobalParams.get("osmSwitch");
+            /*
             var earthParam = {
                 NightView: true,
                 LoadOSM: osmSwitch,
                 Hokaido:true,
                 Aomori:true
-            };
+            };*/
+            
+           /*
+           var earthParam = {
+               console.log(citylistname[0]);
+           }*/
+
+           var earthParam = new Object();
+           for(var i=0;i<citylistname.length;i++){
+            earthParam[citylistname[i]] = true;
+           }
+           //earthParam[citylistname[0]] = true;
+           //earthParam[citylistname[1]] = true;
+
+           //earthParam["Hokaido"];
+
             GlobalParams.set("earthParam", earthParam);
             var gui = new dat.GUI();
 
@@ -619,28 +745,76 @@ module ECS {
 
             }
 
-            gui.add(earthParam, "NightView", false).onChange(guiChanged);
-            gui.add(earthParam, "LoadOSM", true).onChange(guiChanged);
-
+            //gui.add(earthParam, "NightView", false).onChange(guiChanged);
+            //gui.add(earthParam, "LoadOSM", true).onChange(guiChanged);
+            /*
+            //ture---
             var kansai = gui.addFolder("KanSai"); 
             var startPosTokyo = kansai.addFolder("Tokyo");
             //var startPosTokyo = gui.addFolder("Tokyo"); //014
-            var hokaido = startPosTokyo.add(earthParam,"Hokaido").listen();
-            var aomori = startPosTokyo.add(earthParam,"Aomori").listen();
+            //var hokaido = startPosTokyo.add(earthParam,"Hokaido").listen();
+            //var aomori = startPosTokyo.add(earthParam,"Aomori").listen();
+            var A = startPosTokyo.addFolder("AA");
+            var B = A.addFolder("BB");
+            var hokaido = B.add(earthParam,"Hokaido").listen();
+            //------
+            */
 
-            hokaido.onChange((val)=> {
-                this.CityShowMap.Hokaido = val;
+            
+            //A 北海道・東北・関東・中部・関西・中国・四国・九州・大都市
+            var hokaido = gui.addFolder("北海道"); 
+            var touho = gui.addFolder("東北"); 
+            var kantou = gui.addFolder("関東"); 
+            var cyubu = gui.addFolder("中部"); 
+            var kansai = gui.addFolder("関西"); 
+            var cyuguku = gui.addFolder("中国");
+            var sikoku = gui.addFolder("四国"); 
+            var kyusyu = gui.addFolder("九州"); 
+            var daitoshi = gui.addFolder("大都市"); 
+            //B
+            var startPosTokyo = kantou.addFolder("Tokyo");
+            var startPosChiba = kantou.addFolder("Chiba");
+            var startPosSaitama = kantou.addFolder("Saitama");
+            //var startPosTokyo = gui.addFolder("Tokyo"); //014
+            //C
+            var ToKantou = startPosTokyo.addFolder("関東");
+            var Tokansai = startPosTokyo.addFolder("関西");
+            var ToTouho = startPosTokyo.addFolder("東北");
+            
+            //D
+            var citylistnameobj = new Object();
+            for(var i=0;i<citylistname.length;i++){
+            citylistnameobj[i] = ToKantou.add(earthParam,citylistname[i]).listen();
+            }
+            for(var i=0;i<citylistname.length;i++){
+            citylistnameobj[i] = Tokansai.add(earthParam,citylistname[i]).listen();
+            }
+            for(var i=0;i<citylistname.length;i++){
+                citylistnameobj[i] = ToTouho.add(earthParam,citylistname[i]).listen();
+            }
+
+            //var aomori = ToKantou.add(earthParam,"Aomori").listen();
+            /*
+            var earthParam = new Object();
+           for(var i=0;i<citylistname.length;i++){
+            earthParam[citylistname[0]] = true;
+           }
+            */
+           //here start for
+           for(var i=0;i<citylistname.length;i++){
+            citylistnameobj[i].onChange((val)=> {
+                this.CityShowMap.citylistname[i] = val;
                 var rotateContainer =this.GlobalParams.get("rotating");
 
                 for(var cc in rotateContainer.children){
                     if(rotateContainer.children[cc].name == "lineMesh"){
-                        rotateContainer.children[cc].children[0].visible = val;
+                        rotateContainer.children[cc].children[i].visible = val;
                     }
                 }
                 
             });
-
-            
+        }
+            /*
             aomori.onChange((val)=> {
                 this.CityShowMap.Aomori = val;
                 var rotateContainer =this.GlobalParams.get("rotating");
@@ -650,7 +824,7 @@ module ECS {
                         rotateContainer.children[cc].children[1].visible = val;
                     }
                 }
-            });
+            });*/
 
             guiChanged();
         }
@@ -701,7 +875,7 @@ module ECS {
             scene.add(rotating);
 
             var mapMaterial = new THREE.MeshBasicMaterial({
-                map: new THREE.TextureLoader().load('./images/2_no_clouds_4k.jpg'),
+                //map: new THREE.TextureLoader().load('./images/2_no_clouds_4k.jpg'),
                 polygonOffset: true,
                 polygonOffsetFactor: 1,
                 polygonOffsetUnits: 1
