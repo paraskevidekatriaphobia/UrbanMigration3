@@ -230,7 +230,7 @@ module ECS {
     // declare var d3Graphs:any;
     
     let citylistname : string[] = new Array("Hokaido","Aomori","Iwate","Miyagi","Akita",
-    "Yamkata","Fukushima","Ibaraki","Tochigi","Gunma","Saitama","Chiba","Kanagawa","Niigat",
+    "Yamakata","Fukushima","Ibaraki","Tochigi","Gunma","Saitama","Chiba","Kanagawa","Niigata",
     "Toyama","Ishikawa","Fukui","Yamanashi","Nagano","Gifu","Shizuoka","Aichi","Mie",
     "Shiga","Kyoto","Osaka","Hyogo","Nara","Wakayama","Tottori","Shimane","Okayama","Hiroshima",
     "Yamaguchi","Tokushima","Kagawa","Ehime","Kouchi","Fukuoka","Saga","Nagasaki",
@@ -710,7 +710,7 @@ module ECS {
 
            var earthParam = new Object();
            for(var i=0;i<citylistname.length;i++){
-            earthParam[citylistname[i]] = true;
+            earthParam[citylistname[i]] = this.CityShowMap[citylistname[i]];
            }
            //earthParam[citylistname[0]] = true;
            //earthParam[citylistname[1]] = true;
@@ -782,49 +782,28 @@ module ECS {
             var ToTouho = startPosTokyo.addFolder("東北");
             
             //D
-            var citylistnameobj = new Object();
+            var citylistnameobj = new Array<any>(citylistname.length);
             for(var i=0;i<citylistname.length;i++){
-            citylistnameobj[i] = ToKantou.add(earthParam,citylistname[i]).listen();
-            }
-            for(var i=0;i<citylistname.length;i++){
-            citylistnameobj[i] = Tokansai.add(earthParam,citylistname[i]).listen();
-            }
-            for(var i=0;i<citylistname.length;i++){
-                citylistnameobj[i] = ToTouho.add(earthParam,citylistname[i]).listen();
+                citylistnameobj[i] ={
+                    eventfunc: ToKantou.add(earthParam,citylistname[i]).listen(),
+                    name: citylistname[i],
+                    id  : i
+                  };
             }
 
-            //var aomori = ToKantou.add(earthParam,"Aomori").listen();
-            /*
-            var earthParam = new Object();
-           for(var i=0;i<citylistname.length;i++){
-            earthParam[citylistname[0]] = true;
-           }
-            */
-           //here start for
-           for(var i=0;i<citylistname.length;i++){
-            citylistnameobj[i].onChange((val)=> {
-                this.CityShowMap.citylistname[i] = val;
-                var rotateContainer =this.GlobalParams.get("rotating");
+             citylistnameobj.forEach(city => {
+                 city.eventfunc.onChange((val)=> {
+                    this.CityShowMap[city.name] = val;
+                    var rotateContainer =this.GlobalParams.get("rotating");
 
-                for(var cc in rotateContainer.children){
-                    if(rotateContainer.children[cc].name == "lineMesh"){
-                        rotateContainer.children[cc].children[i].visible = val;
-                    }
-                }
-                
-            });
-        }
-            /*
-            aomori.onChange((val)=> {
-                this.CityShowMap.Aomori = val;
-                var rotateContainer =this.GlobalParams.get("rotating");
-
-                for(var cc in rotateContainer.children){
-                    if(rotateContainer.children[cc].name == "lineMesh"){
-                        rotateContainer.children[cc].children[1].visible = val;
-                    }
-                }
-            });*/
+                    for(var cc in rotateContainer.children){
+                        if(rotateContainer.children[cc].name == "lineMesh"){
+                            rotateContainer.children[cc].children[city.id].visible = val;
+                        }
+                    }   
+                });
+             });
+        
 
             guiChanged();
         }
