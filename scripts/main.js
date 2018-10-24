@@ -1,10 +1,7 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -801,7 +798,7 @@ var ECS;
     }(System));
     ECS.MainSystem = MainSystem;
     // declare var d3Graphs:any;
-    var citylistname = new Array("Hokaido", "Aomori", "Iwate", "Miyagi", "Akita", "Yamkata", "Fukushima", "Ibaraki", "Tochigi", "Gunma", "Saitama", "Chiba", "Kanagawa", "Niigat", "Toyama", "Ishikawa", "Fukui", "Yamanashi", "Nagano", "Gifu", "Shizuoka", "Aichi", "Mie", "Shiga", "Kyoto", "Osaka", "Hyogo", "Nara", "Wakayama", "Tottori", "Shimane", "Okayama", "Hiroshima", "Yamaguchi", "Tokushima", "Kagawa", "Ehime", "Kouchi", "Fukuoka", "Saga", "Nagasaki", "Kumamoto", "Ooita", "Miyazaki", "Kagoshima");
+    var citylistname = new Array("Hokaido", "Aomori", "Iwate", "Miyagi", "Akita", "Yamakata", "Fukushima", "Ibaraki", "Tochigi", "Gunma", "Saitama", "Chiba", "Kanagawa", "Niigata", "Toyama", "Ishikawa", "Fukui", "Yamanashi", "Nagano", "Gifu", "Shizuoka", "Aichi", "Mie", "Shiga", "Kyoto", "Osaka", "Hyogo", "Nara", "Wakayama", "Tottori", "Shimane", "Okayama", "Hiroshima", "Yamaguchi", "Tokushima", "Kagawa", "Ehime", "Kouchi", "Fukuoka", "Saga", "Nagasaki", "Kumamoto", "Ooita", "Miyazaki", "Kagoshima");
     var citylistname2 = new Array("hokaido", "aomori", "iwate", "miyagi", "akita", "aamkata", "fukushima", "ibaraki", "tochigi", "gunma", "saitama", "chiba", "kanagawa", "niigat", "Toyama", "Ishikawa", "Fukui", "Yamanashi", "Nagano", "Gifu", "Shizuoka", "Aichi", "Mie", "shiga", "kyoto", "osaka", "hyogo", "nara", "wakayama", "tottori", "shimane", "okayama", "hiroshima", "Yamaguchi", "Tokushima", "Kagawa", "Ehime", "Kouchi", "Fukuoka", "Saga", "Nagasaki", "kumamoto", "ooita", "miyazaki", "kagoshima");
     /*citylistname.push("A");
     citylistname.push("B");
@@ -1208,7 +1205,7 @@ var ECS;
             }*/
             var earthParam = new Object();
             for (var i = 0; i < citylistname.length; i++) {
-                earthParam[citylistname[i]] = true;
+                earthParam[citylistname[i]] = this.CityShowMap[citylistname[i]];
             }
             //earthParam[citylistname[0]] = true;
             //earthParam[citylistname[1]] = true;
@@ -1271,46 +1268,25 @@ var ECS;
             var Tokansai = startPosTokyo.addFolder("関西");
             var ToTouho = startPosTokyo.addFolder("東北");
             //D
-            var citylistnameobj = new Object();
+            var citylistnameobj = new Array(citylistname.length);
             for (var i = 0; i < citylistname.length; i++) {
-                citylistnameobj[i] = ToKantou.add(earthParam, citylistname[i]).listen();
+                citylistnameobj[i] = {
+                    eventfunc: ToKantou.add(earthParam, citylistname[i]).listen(),
+                    name: citylistname[i],
+                    id: i
+                };
             }
-            for (var i = 0; i < citylistname.length; i++) {
-                citylistnameobj[i] = Tokansai.add(earthParam, citylistname[i]).listen();
-            }
-            for (var i = 0; i < citylistname.length; i++) {
-                citylistnameobj[i] = ToTouho.add(earthParam, citylistname[i]).listen();
-            }
-            //var aomori = ToKantou.add(earthParam,"Aomori").listen();
-            /*
-            var earthParam = new Object();
-           for(var i=0;i<citylistname.length;i++){
-            earthParam[citylistname[0]] = true;
-           }
-            */
-            //here start for
-            for (var i = 0; i < citylistname.length; i++) {
-                citylistnameobj[i].onChange(function (val) {
-                    _this.CityShowMap.citylistname[i] = val;
+            citylistnameobj.forEach(function (city) {
+                city.eventfunc.onChange(function (val) {
+                    _this.CityShowMap[city.name] = val;
                     var rotateContainer = _this.GlobalParams.get("rotating");
                     for (var cc in rotateContainer.children) {
                         if (rotateContainer.children[cc].name == "lineMesh") {
-                            rotateContainer.children[cc].children[i].visible = val;
+                            rotateContainer.children[cc].children[city.id].visible = val;
                         }
                     }
                 });
-            }
-            /*
-            aomori.onChange((val)=> {
-                this.CityShowMap.Aomori = val;
-                var rotateContainer =this.GlobalParams.get("rotating");
-
-                for(var cc in rotateContainer.children){
-                    if(rotateContainer.children[cc].name == "lineMesh"){
-                        rotateContainer.children[cc].children[1].visible = val;
-                    }
-                }
-            });*/
+            });
             guiChanged();
         };
         ThreeJsSystem.prototype.InitThreeJs = function () {
