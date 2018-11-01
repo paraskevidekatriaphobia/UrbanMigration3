@@ -1282,14 +1282,15 @@ var ECS;
             for (var i = 0; i < makeAlist.length; i++) {
                 makeAlistobj[makeAlist2[i]] = gui.addFolder(makeAlist[i]);
                 for (var ii = 0; ii < makeBlist.length; ii++) {
-                    if ((i == 0 && ii != 0) || (i == 1 && (ii >= 1 && ii <= 6)) || (i == 2 && (ii >= 7 && ii <= 13)) ||
-                        (i == 3 && (ii >= 14 && ii <= 23)) || (i == 4 && (ii >= 24 && ii <= 29)) || (i == 5 && (ii >= 30 && ii <= 34)) ||
-                        (i == 6 && (ii >= 35 && ii <= 38)) || (i == 7 && (ii >= 39 && ii <= 46)) || (i == 8))
+                    if ((i == 0 && ii != 0) || (i == 1 && (ii < 1 || ii > 6)) || (i == 2 && (ii < 7 || ii > 13)) ||
+                        (i == 3 && (ii < 14 || ii > 23)) || (i == 4 && (ii < 24 || ii > 29)) || (i == 5 && (ii < 30 || ii > 34)) ||
+                        (i == 6 && (ii < 35 || ii > 38)) || (i == 7 && (ii < 39 || ii > 46)) || (i == 8))
                         continue;
                     makeBlistobj[makeBlist2[ii]] = makeAlistobj[makeAlist2[i]].addFolder(makeBlist[ii]);
                     for (var iii = 0; iii < makeClist.length; iii++) {
                         if (iii == 0)
                             continue;
+                        //if(iii>3)continue;
                         makeClistobj[makeClist2[iii]] = makeBlistobj[makeBlist2[ii]].addFolder(makeClist[iii]);
                         //D
                         //var citylistnameobj = new Array<any>(citylistname.length);
@@ -1300,6 +1301,7 @@ var ECS;
                                 (iii == 3 && (iiii < 14 || iiii > 23)) || (iii == 4 && (iiii < 24 || iiii > 29)) || (iii == 5 && (iiii < 30 || iiii > 34)) ||
                                 (iii == 6 && (iiii < 35 || iiii > 38)) || (iii == 7 && (iiii < 39 || iiii > 46)) || (iii == 8))
                                 continue;
+                            //if(iiii>0)continue;
                             //if(iiii>4)continue;
                             citylistnameobj[iiii] = {
                                 eventfunc: makeClistobj[makeClist2[iii]].add(earthParam, citylistname[iiii]).listen(),
