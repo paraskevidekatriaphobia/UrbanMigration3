@@ -600,6 +600,7 @@ var Utils;
  *
  * ========================================================================= */
 /// <reference path="./Entity.ts" />
+/// <reference path="./Component.ts" />
 /// <reference path="./LoadData.ts" />
 /// <reference path="./HashSet.ts" />
 /// <reference path="./Utils.ts" />
@@ -695,63 +696,6 @@ var ECS;
         LoadingSystem.prototype.Execute = function () {
             var _this = this;
             _super.prototype.Execute.call(this);
-            // var mapImage = new Image();
-            // mapImage.src = './images/2_no_clouds_4k.jpg';
-            //console.log("load image data finished!");
-            // Utils.loadData('./data/tip.json', <JsonDataComponent>this.entities.get("tip_entity").components.get("jsondata"), function () {
-            //     console.log("load tip data finished!");
-            //     Utils.loadData('./data/country.json', <JsonDataComponent>this.entities.get("country_entity").components.get("jsondata"), function () {
-            //         console.log("load country data finished!");
-            //         Utils.loadData('./data/missile.json', <JsonDataComponent>this.entities.get("missile_entity").components.get("jsondata"), function () {
-            //             console.log("load missile data finished!");
-            //             Utils.loadData('./data/history.json', <JsonDataComponent>this.entities.get("history_entity").components.get("jsondata"), function () {
-            //                 console.log("load history data finished!");
-            //                 var timeBins = JSON.parse((<JsonDataComponent>this.entities.get("history_entity").components.get("jsondata")).data).timeBins;
-            //                 var missileLookup = JSON.parse((<JsonDataComponent>this.entities.get("missile_entity").components.get("jsondata")).data);
-            //                 var latlonData = JSON.parse((<JsonDataComponent>this.entities.get("country_entity").components.get("jsondata")).data);
-            //                 let entity_GlobalData = new ECS.Entity("global_entity");
-            //                 let global_data = new Utils.HashSet<any>();
-            //                 var outcomeLookup = {
-            //                     'success': 'Success',
-            //                     'failure': 'Failure',
-            //                     'unknown': 'Unknown'
-            //                 };
-            //                 var missileColors = {
-            //                     'er-scud': 0x1A62A5,
-            //                     'hwasong-12': 0x6C6C6C,
-            //                     'hwasong-14': 0xAEB21A,
-            //                     'hwasong-15': 0x1DB2C4,
-            //                     'kn-02': 0xB68982,
-            //                     'musudan': 0x9FBAE3,
-            //                     'nodong': 0xFD690F,
-            //                     'polaris-1': 0xFEAE65,
-            //                     'polaris-2': 0xDA5CB6,
-            //                     'scud-b': 0x279221,
-            //                     'scud-b-marv': 0xD2D479,
-            //                     'scud-c': 0x89DC78,
-            //                     'scud-c-marv': 0xBBBBBB,
-            //                     'taepodong-1': 0xCA0F1E,
-            //                     'unha': 0x814EAF,
-            //                     'unha-3': 0xB89FCB,
-            //                     'unknown': 0x78433B
-            //                 };
-            //                 global_data.set("timeBins", timeBins);
-            //                 global_data.set("missileLookup", missileLookup);
-            //                 global_data.set("latlonData", latlonData);
-            //                 global_data.set("outcomeLookup", outcomeLookup);
-            //                 global_data.set("missileColors", missileColors);
-            //                 entity_GlobalData.addComponent(new ECS.GlobalComponent(global_data));
-            //                 let threejs_system = new ECS.ThreeJsSystem();
-            //                 let eventlistener_system = new ECS.EventListenerSystem();
-            //                 let other_systems = new Utils.HashSet<System>();
-            //                 other_systems.set(threejs_system.name, threejs_system);
-            //                 other_systems.set(eventlistener_system.name, eventlistener_system);
-            //                 let main_system = new ECS.MainSystem(entity_GlobalData, other_systems);
-            //                 main_system.Execute();
-            //             });
-            //         });
-            //     });
-            // });
             Utils.loadData('./data/citycode.json', this.entities.get("citycode_entity").components.get("jsondata"), function () {
                 Utils.loadData('./data/0003008383.json', _this.entities.get("2008data_entity").components.get("jsondata"), function () {
                     var cityCode = JSON.parse(_this.entities.get("citycode_entity").components.get("jsondata").data);
@@ -799,10 +743,6 @@ var ECS;
     // declare var d3Graphs:any;
     var citylistname = new Array("Hokaido", "Aomori", "Iwate", "Miyagi", "Akita", "Yamakata", "Fukushima", "Ibaraki", "Tochigi", "Gunma", "Saitama", "Chiba", "Tokyo", "Kanagawa", "Niigata", "Toyama", "Ishikawa", "Fukui", "Yamanashi", "Nagano", "Gifu", "Shizuoka", "Aichi", "Mie", "Shiga", "Kyoto", "Osaka", "Hyogo", "Nara", "Wakayama", "Tottori", "Shimane", "Okayama", "Hiroshima", "Yamaguchi", "Tokushima", "Kagawa", "Ehime", "Kouchi", "Fukuoka", "Saga", "Nagasaki", "Kumamoto", "Ooita", "Miyazaki", "Kagoshima", "Okinawa");
     var citylistname2 = new Array("hokaido", "aomori", "iwate", "miyagi", "akita", "yamkata", "fukushima", "ibaraki", "tochigi", "gunma", "saitama", "chiba", "tokyo", "kanagawa", "niigat", "toyama", "ishikawa", "fukui", "yamanashi", "nagano", "gifu", "shizuoka", "aichi", "mie", "shiga", "kyoto", "osaka", "hyogo", "nara", "wakayama", "tottori", "shimane", "okayama", "hiroshima", "Yamaguchi", "Tokushima", "Kagawa", "Ehime", "Kouchi", "Fukuoka", "Saga", "Nagasaki", "kumamoto", "ooita", "miyazaki", "kagoshima", "okinawa");
-    /*citylistname.push("A");
-    citylistname.push("B");
-    citylistname.push("C");
-    citylistname.push("D");*/
     var ThreeJsSystem = /** @class */ (function (_super) {
         __extends(ThreeJsSystem, _super);
         function ThreeJsSystem() {
@@ -998,7 +938,7 @@ var ECS;
                 });
                 var pSystem = new THREE.Points(particlesGeo, shaderMaterial);
                 pSystem.dynamic = true;
-                //splineOutline.add(pSystem);
+                splineOutline.add(pSystem);
                 pSystem.update = function () {
                     // var time = Date.now();
                     var positionArray = this.geometry.attributes.position.array;
@@ -1300,12 +1240,12 @@ var ECS;
                                 continue;
                             //if(iiii>0)continue;
                             //if(iiii>4)continue;
-                            chain_id += 1;
                             citylistnameobj[chain_id] = {
                                 eventfunc: makeClistobj[makeClist2[iii]].add(earthParam, citylistname[iiii]).listen(),
                                 name: citylistname[iiii],
                                 id: chain_id
                             };
+                            chain_id += 1;
                         }
                     }
                 }
@@ -1550,18 +1490,13 @@ var ECS;
                 //check code is selected or not
                 for (var key in this.CityCodeMap) {
                     if (this.CityCodeMap[key] == m.components.get("humanmove").a_id) {
-                        //have key then check selected status
-                        if (this.CityShowMap[key]) {
-                            var start_lon = current_humanmove.b_lon;
-                            var start_lat = current_humanmove.b_lat;
-                            var end_lon = current_humanmove.a_lon;
-                            var end_lat = current_humanmove.a_lat;
-                            //console.log(start_lon,start_lat);
-                            //console.log(end_lon,end_lat);
-                            var start_pos = Utils.ConvertGISDataTo3DSphere(start_lon, start_lat);
-                            var end_pos = Utils.ConvertGISDataTo3DSphere(end_lon, end_lat);
-                            moveDataForSphere.push(new ECS.ThreeJsMoveEntity([start_pos.x, start_pos.y, start_pos.z], [end_pos.x, end_pos.y, end_pos.z]));
-                        }
+                        var start_lon = current_humanmove.b_lon;
+                        var start_lat = current_humanmove.b_lat;
+                        var end_lon = current_humanmove.a_lon;
+                        var end_lat = current_humanmove.a_lat;
+                        var start_pos = Utils.ConvertGISDataTo3DSphere(start_lon, start_lat);
+                        var end_pos = Utils.ConvertGISDataTo3DSphere(end_lon, end_lat);
+                        moveDataForSphere.push(new ECS.ThreeJsMoveEntity([start_pos.x, start_pos.y, start_pos.z], [end_pos.x, end_pos.y, end_pos.z]));
                     }
                 }
             }

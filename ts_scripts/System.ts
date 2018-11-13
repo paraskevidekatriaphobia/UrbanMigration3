@@ -5,16 +5,14 @@
  *
  * ========================================================================= */
 /// <reference path="./Entity.ts" />
+/// <reference path="./Component.ts" />
 /// <reference path="./LoadData.ts" />
 /// <reference path="./HashSet.ts" />
 /// <reference path="./Utils.ts" />
 module ECS {
-
-
-
     export class System {
         name: string;
-        GlobalDatas: ECS.Entity;
+        GlobalDatas: Entity;
         MainSystem: ECS.System;
         constructor(name: string) {
             this.name = name;
@@ -112,67 +110,6 @@ module ECS {
         }
         Execute() {
             super.Execute();
-            // var mapImage = new Image();
-            // mapImage.src = './images/2_no_clouds_4k.jpg';
-            //console.log("load image data finished!");
-            // Utils.loadData('./data/tip.json', <JsonDataComponent>this.entities.get("tip_entity").components.get("jsondata"), function () {
-            //     console.log("load tip data finished!");
-            //     Utils.loadData('./data/country.json', <JsonDataComponent>this.entities.get("country_entity").components.get("jsondata"), function () {
-            //         console.log("load country data finished!");
-            //         Utils.loadData('./data/missile.json', <JsonDataComponent>this.entities.get("missile_entity").components.get("jsondata"), function () {
-            //             console.log("load missile data finished!");
-            //             Utils.loadData('./data/history.json', <JsonDataComponent>this.entities.get("history_entity").components.get("jsondata"), function () {
-            //                 console.log("load history data finished!");
-            //                 var timeBins = JSON.parse((<JsonDataComponent>this.entities.get("history_entity").components.get("jsondata")).data).timeBins;
-            //                 var missileLookup = JSON.parse((<JsonDataComponent>this.entities.get("missile_entity").components.get("jsondata")).data);
-            //                 var latlonData = JSON.parse((<JsonDataComponent>this.entities.get("country_entity").components.get("jsondata")).data);
-
-            //                 let entity_GlobalData = new ECS.Entity("global_entity");
-            //                 let global_data = new Utils.HashSet<any>();
-            //                 var outcomeLookup = {
-            //                     'success': 'Success',
-            //                     'failure': 'Failure',
-            //                     'unknown': 'Unknown'
-            //                 };
-            //                 var missileColors = {
-            //                     'er-scud': 0x1A62A5,
-            //                     'hwasong-12': 0x6C6C6C,
-            //                     'hwasong-14': 0xAEB21A,
-            //                     'hwasong-15': 0x1DB2C4,
-            //                     'kn-02': 0xB68982,
-            //                     'musudan': 0x9FBAE3,
-            //                     'nodong': 0xFD690F,
-            //                     'polaris-1': 0xFEAE65,
-            //                     'polaris-2': 0xDA5CB6,
-            //                     'scud-b': 0x279221,
-            //                     'scud-b-marv': 0xD2D479,
-            //                     'scud-c': 0x89DC78,
-            //                     'scud-c-marv': 0xBBBBBB,
-            //                     'taepodong-1': 0xCA0F1E,
-            //                     'unha': 0x814EAF,
-            //                     'unha-3': 0xB89FCB,
-            //                     'unknown': 0x78433B
-            //                 };
-            //                 global_data.set("timeBins", timeBins);
-            //                 global_data.set("missileLookup", missileLookup);
-            //                 global_data.set("latlonData", latlonData);
-            //                 global_data.set("outcomeLookup", outcomeLookup);
-            //                 global_data.set("missileColors", missileColors);
-            //                 entity_GlobalData.addComponent(new ECS.GlobalComponent(global_data));
-
-            //                 let threejs_system = new ECS.ThreeJsSystem();
-            //                 let eventlistener_system = new ECS.EventListenerSystem();
-            //                 let other_systems = new Utils.HashSet<System>();
-            //                 other_systems.set(threejs_system.name, threejs_system);
-            //                 other_systems.set(eventlistener_system.name, eventlistener_system);
-            //                 let main_system = new ECS.MainSystem(entity_GlobalData, other_systems);
-            //                 main_system.Execute();
-
-            //             });
-            //         });
-            //     });
-            // });
-
 
             Utils.loadData('./data/citycode.json', <ECS.JsonDataComponent>this.entities.get("citycode_entity").components.get("jsondata"), () => {
                 Utils.loadData('./data/0003008383.json', <ECS.JsonDataComponent>this.entities.get("2008data_entity").components.get("jsondata"), () => {
@@ -243,19 +180,12 @@ module ECS {
         "Yamaguchi", "Tokushima", "Kagawa", "Ehime", "Kouchi", "Fukuoka", "Saga", "Nagasaki",
         "kumamoto", "ooita", "miyazaki", "kagoshima", "okinawa");
 
-    /*citylistname.push("A");
-    citylistname.push("B");
-    citylistname.push("C");
-    citylistname.push("D");*/
-
     export class ThreeJsSystem extends System {
         GlobalParams: Utils.HashSet<any>;
         CityCodeMap: any;
         CityShowMap: any;
 
         constructor() {
-
-
             super("threejs");
             this.GlobalParams = new Utils.HashSet<any>();
             this.CityCodeMap = {
@@ -461,7 +391,7 @@ module ECS {
 
                 var pSystem = new THREE.Points(particlesGeo, shaderMaterial);
                 pSystem.dynamic = true;
-                //splineOutline.add(pSystem);
+                splineOutline.add(pSystem);
 
                 pSystem.update = function () {
                     // var time = Date.now();
@@ -806,7 +736,7 @@ module ECS {
                 "ToCyugoko", "ToShikoku", "ToKyusyu", "ToDaitoshi");
             let makeClist2: string[] = new Array("Tohokaido", "Totouho", "Tokantou", "Tocyubu", "Tokansai",
                 "Tocyugoko", "Toshikoku", "Tokyusyu", "Todaitoshi");
-            var citylistnameobj = new Array<any>(makeAlist.length*makeBlist.length*makeClist.length*citylistname.length);
+            var citylistnameobj = new Array<any>(makeAlist.length * makeBlist.length * makeClist.length * citylistname.length);
             //new2
             //ABC
 
@@ -814,21 +744,21 @@ module ECS {
             for (var i = 0; i < makeAlist.length; i++) {
                 makeAlistobj[makeAlist2[i]] = gui.addFolder(makeAlist[i]);
                 for (var ii = 0; ii < makeBlist.length; ii++) {
-                    if((i==0&&ii!=0)||(i==1&&(ii<1||ii>6))||(i==2&&(ii<7||ii>13))||
-                    (i==3&&(ii<14||ii>23))||(i==4&&(ii<24||ii>29))||(i==5&&(ii<30||ii>34))||
-                    (i==6&&(ii<35||ii>38))||(i==7&&(ii<39||ii>46))||(i==8))continue;
+                    if ((i == 0 && ii != 0) || (i == 1 && (ii < 1 || ii > 6)) || (i == 2 && (ii < 7 || ii > 13)) ||
+                        (i == 3 && (ii < 14 || ii > 23)) || (i == 4 && (ii < 24 || ii > 29)) || (i == 5 && (ii < 30 || ii > 34)) ||
+                        (i == 6 && (ii < 35 || ii > 38)) || (i == 7 && (ii < 39 || ii > 46)) || (i == 8)) continue;
                     makeBlistobj[makeBlist2[ii]] = makeAlistobj[makeAlist2[i]].addFolder(makeBlist[ii]);
                     for (var iii = 0; iii < makeClist.length; iii++) {
-                        if(iii==0)continue;
+                        if (iii == 0) continue;
                         //if(iii>3)continue;
                         makeClistobj[makeClist2[iii]] = makeBlistobj[makeBlist2[ii]].addFolder(makeClist[iii]);
                         //D
                         //var citylistnameobj = new Array<any>(citylistname.length);
                         for (var iiii = 0; iiii < citylistname.length; iiii++) {
-                            if(ii==iiii)continue;
-                            if((iii==0&&iiii>0)||(iii==1&&(iiii<=0||iiii>6))||(iii==2&&(iiii<7||iiii>13))||
-                            (iii==3&&(iiii<14||iiii>23))||(iii==4&&(iiii<24||iiii>29))||(iii==5&&(iiii<30||iiii>34))||
-                            (iii==6&&(iiii<35||iiii>38))||(iii==7&&(iiii<39||iiii>46))||(iii==8))continue;
+                            if (ii == iiii) continue;
+                            if ((iii == 0 && iiii > 0) || (iii == 1 && (iiii <= 0 || iiii > 6)) || (iii == 2 && (iiii < 7 || iiii > 13)) ||
+                                (iii == 3 && (iiii < 14 || iiii > 23)) || (iii == 4 && (iiii < 24 || iiii > 29)) || (iii == 5 && (iiii < 30 || iiii > 34)) ||
+                                (iii == 6 && (iiii < 35 || iiii > 38)) || (iii == 7 && (iiii < 39 || iiii > 46)) || (iii == 8)) continue;
                             //if(iiii>0)continue;
                             //if(iiii>4)continue;
                             citylistnameobj[chain_id] = {
@@ -836,13 +766,13 @@ module ECS {
                                 name: citylistname[iiii],
                                 id: chain_id
                             };
-                            chain_id+=1;
+                            chain_id += 1;
                         }
                     }
                 }
             }
 
-                                    //
+            //
             citylistnameobj.forEach(city => {
                 //init line visualization
                 var rotateContainer = this.GlobalParams.get("rotating");
@@ -850,22 +780,22 @@ module ECS {
                     //console.log(cc);
                     if (rotateContainer.children[cc].name == "lineMesh") {
                         //console.log(rotateContainer.children[cc].children);
-                        if(rotateContainer.children[cc].children[city.id]!=undefined){
+                        if (rotateContainer.children[cc].children[city.id] != undefined) {
                             rotateContainer.children[cc].children[city.id].visible = false;
                         }
-                       
+
                     }
                 }
 
                 city.eventfunc.onChange((val) => {
                     this.CityShowMap[city.name] = val;
-                    
+
 
                     for (var cc in rotateContainer.children) {
                         if (rotateContainer.children[cc].name == "lineMesh") {
                             console.log(rotateContainer.children[cc].children);
-                            if(rotateContainer.children[cc].children[city.id]!=undefined){
-                                
+                            if (rotateContainer.children[cc].children[city.id] != undefined) {
+
                                 rotateContainer.children[cc].children[city.id].visible = val;
                             }
                         }
@@ -1120,23 +1050,18 @@ module ECS {
                 //check code is selected or not
                 for (var key in this.CityCodeMap) {
                     if (this.CityCodeMap[key] == (<HumanMovementDataComponent>m.components.get("humanmove")).a_id) {
-
-                        //have key then check selected status
-                        if (this.CityShowMap[key]) {
-                            var start_lon = current_humanmove.b_lon;
-                            var start_lat = current_humanmove.b_lat;
-                            var end_lon = current_humanmove.a_lon;
-                            var end_lat = current_humanmove.a_lat;
-                            //console.log(start_lon,start_lat);
-                            //console.log(end_lon,end_lat);
-                            var start_pos = Utils.ConvertGISDataTo3DSphere(start_lon, start_lat);
-                            var end_pos = Utils.ConvertGISDataTo3DSphere(end_lon, end_lat);
-                            moveDataForSphere.push(new ThreeJsMoveEntity([start_pos.x, start_pos.y, start_pos.z], [end_pos.x, end_pos.y, end_pos.z]));
-                        }
+                        var start_lon = current_humanmove.b_lon;
+                        var start_lat = current_humanmove.b_lat;
+                        var end_lon = current_humanmove.a_lon;
+                        var end_lat = current_humanmove.a_lat;
+                        var start_pos = Utils.ConvertGISDataTo3DSphere(start_lon, start_lat);
+                        var end_pos = Utils.ConvertGISDataTo3DSphere(end_lon, end_lat);
+                        moveDataForSphere.push(new ThreeJsMoveEntity([start_pos.x, start_pos.y, start_pos.z], [end_pos.x, end_pos.y, end_pos.z]));
                     }
                 }
-
             }
+
+
 
             //data visual
             var lineArray = Utils.BuildSphereDataVizGeometries(moveDataForSphere);
