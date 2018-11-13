@@ -68,7 +68,7 @@ module ECS {
                 var n = d["$"];
 
                 //select data load (014 Tokyo)
-                if (b != "014") continue;
+                //if (b != "014") continue;
 
                 //not need data
                 if (BeforeNotAllowedList.get(b) != undefined) continue;
@@ -461,7 +461,7 @@ module ECS {
 
                 var pSystem = new THREE.Points(particlesGeo, shaderMaterial);
                 pSystem.dynamic = true;
-                splineOutline.add(pSystem);
+                //splineOutline.add(pSystem);
 
                 pSystem.update = function () {
                     // var time = Date.now();
@@ -712,7 +712,7 @@ module ECS {
 
             var earthParam = new Object();
             for (var i = 0; i < citylistname.length; i++) {
-                earthParam[citylistname[i]] = this.CityShowMap[citylistname[i]];
+                earthParam[citylistname[i]] = false;//this.CityShowMap[citylistname[i]];
             }
             //earthParam[citylistname[0]] = true;
             //earthParam[citylistname[1]] = true;
@@ -806,9 +806,11 @@ module ECS {
                 "ToCyugoko", "ToShikoku", "ToKyusyu", "ToDaitoshi");
             let makeClist2: string[] = new Array("Tohokaido", "Totouho", "Tokantou", "Tocyubu", "Tokansai",
                 "Tocyugoko", "Toshikoku", "Tokyusyu", "Todaitoshi");
-            var citylistnameobj = new Array<any>(citylistname.length);
+            var citylistnameobj = new Array<any>(makeAlist.length*makeBlist.length*makeClist.length*citylistname.length);
             //new2
             //ABC
+
+            var chain_id = 0;
             for (var i = 0; i < makeAlist.length; i++) {
                 makeAlistobj[makeAlist2[i]] = gui.addFolder(makeAlist[i]);
                 for (var ii = 0; ii < makeBlist.length; ii++) {
@@ -829,28 +831,47 @@ module ECS {
                             (iii==6&&(iiii<35||iiii>38))||(iii==7&&(iiii<39||iiii>46))||(iii==8))continue;
                             //if(iiii>0)continue;
                             //if(iiii>4)continue;
-                            citylistnameobj[iiii] = {
+                            citylistnameobj[chain_id] = {
                                 eventfunc: makeClistobj[makeClist2[iii]].add(earthParam, citylistname[iiii]).listen(),
                                 name: citylistname[iiii],
-                                id: iiii
+                                id: chain_id
                             };
+                            chain_id+=1;
                         }
-
-                        citylistnameobj.forEach(city => {
-                            city.eventfunc.onChange((val) => {
-                                this.CityShowMap[city.name] = val;
-                                var rotateContainer = this.GlobalParams.get("rotating");
-
-                                for (var cc in rotateContainer.children) {
-                                    if (rotateContainer.children[cc].name == "lineMesh") {
-                                        rotateContainer.children[cc].children[city.id].visible = val;
-                                    }
-                                }
-                            });
-                        });
                     }
                 }
             }
+
+                                    //
+            citylistnameobj.forEach(city => {
+                //init line visualization
+                var rotateContainer = this.GlobalParams.get("rotating");
+                for (var cc in rotateContainer.children) {
+                    //console.log(cc);
+                    if (rotateContainer.children[cc].name == "lineMesh") {
+                        //console.log(rotateContainer.children[cc].children);
+                        if(rotateContainer.children[cc].children[city.id]!=undefined){
+                            rotateContainer.children[cc].children[city.id].visible = false;
+                        }
+                       
+                    }
+                }
+
+                city.eventfunc.onChange((val) => {
+                    this.CityShowMap[city.name] = val;
+                    
+
+                    for (var cc in rotateContainer.children) {
+                        if (rotateContainer.children[cc].name == "lineMesh") {
+                            console.log(rotateContainer.children[cc].children);
+                            if(rotateContainer.children[cc].children[city.id]!=undefined){
+                                
+                                rotateContainer.children[cc].children[city.id].visible = val;
+                            }
+                        }
+                    }
+                });
+            });
             //new 1
             /*
             //A
@@ -1091,6 +1112,8 @@ module ECS {
 
             //convert gis data to 3d sphere data
             var moveDataForSphere = new Array<ThreeJsMoveEntity>();
+
+            //load data
             for (let m of moveData) {
                 var current_humanmove = <HumanMovementDataComponent>m.components.get("humanmove");
                 //console.log("b:" + (<HumanMovementDataComponent>m.components.get("humanmove")).b_id + ",a:" + (<HumanMovementDataComponent>m.components.get("humanmove")).a_id);

@@ -1,10 +1,7 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -661,8 +658,7 @@ var ECS;
                 var a = d["@area"];
                 var n = d["$"];
                 //select data load (014 Tokyo)
-                if (b != "014")
-                    continue;
+                //if (b != "014") continue;
                 //not need data
                 if (BeforeNotAllowedList.get(b) != undefined)
                     continue;
@@ -1002,7 +998,7 @@ var ECS;
                 });
                 var pSystem = new THREE.Points(particlesGeo, shaderMaterial);
                 pSystem.dynamic = true;
-                splineOutline.add(pSystem);
+                //splineOutline.add(pSystem);
                 pSystem.update = function () {
                     // var time = Date.now();
                     var positionArray = this.geometry.attributes.position.array;
@@ -1210,7 +1206,7 @@ var ECS;
             }*/
             var earthParam = new Object();
             for (var i = 0; i < citylistname.length; i++) {
-                earthParam[citylistname[i]] = this.CityShowMap[citylistname[i]];
+                earthParam[citylistname[i]] = false; //this.CityShowMap[citylistname[i]];
             }
             //earthParam[citylistname[0]] = true;
             //earthParam[citylistname[1]] = true;
@@ -1276,9 +1272,10 @@ var ECS;
             var makeBlist2 = new Array("startPosHokaido", "startPosAomori", "startPosIwate", "startPosMiyagi", "startPosAkita", "startPosYamakata", "startPosFukushima", "startPosIbaraki", "startPosTochigi", "startPosGunma", "startPosSaitama", "startPosChiba", "startPosTokyo", "startPosKanagawa", "startPosNiigata", "startPosToyama", "startPosIshikawa", "startPosFukui", "startPosYamanashi", "startPosNagano", "startPosGifu", "startPosShizuoka", "startPosAichi", "startPosMie", "startPosShiga", "startPosKyoto", "startPosOsaka", "startPosHyogo", "startPosNara", "startPosWakayama", "startPosTottori", "startPosShimane", "startPosOkayama", "startPosHiroshima", "startPosYamaguchi", "startPosTokushima", "startPosKagawa", "startPosEhime", "startPosKouchi", "startPosFukuoka", "startPosSaga", "startPosNagasaki", "startPosKumamoto", "startPosOoita", "startPosMiyazaki", "startPosKagoshima", "startPosOkinawa");
             var makeClist = new Array("ToHokaido", "ToTouho", "ToKantou", "ToCyubu", "ToKansai", "ToCyugoko", "ToShikoku", "ToKyusyu", "ToDaitoshi");
             var makeClist2 = new Array("Tohokaido", "Totouho", "Tokantou", "Tocyubu", "Tokansai", "Tocyugoko", "Toshikoku", "Tokyusyu", "Todaitoshi");
-            var citylistnameobj = new Array(citylistname.length);
+            var citylistnameobj = new Array(makeAlist.length * makeBlist.length * makeClist.length * citylistname.length);
             //new2
             //ABC
+            var chain_id = 0;
             for (var i = 0; i < makeAlist.length; i++) {
                 makeAlistobj[makeAlist2[i]] = gui.addFolder(makeAlist[i]);
                 for (var ii = 0; ii < makeBlist.length; ii++) {
@@ -1303,26 +1300,41 @@ var ECS;
                                 continue;
                             //if(iiii>0)continue;
                             //if(iiii>4)continue;
-                            citylistnameobj[iiii] = {
+                            chain_id += 1;
+                            citylistnameobj[chain_id] = {
                                 eventfunc: makeClistobj[makeClist2[iii]].add(earthParam, citylistname[iiii]).listen(),
                                 name: citylistname[iiii],
-                                id: iiii
+                                id: chain_id
                             };
                         }
-                        citylistnameobj.forEach(function (city) {
-                            city.eventfunc.onChange(function (val) {
-                                _this.CityShowMap[city.name] = val;
-                                var rotateContainer = _this.GlobalParams.get("rotating");
-                                for (var cc in rotateContainer.children) {
-                                    if (rotateContainer.children[cc].name == "lineMesh") {
-                                        rotateContainer.children[cc].children[city.id].visible = val;
-                                    }
-                                }
-                            });
-                        });
                     }
                 }
             }
+            //
+            citylistnameobj.forEach(function (city) {
+                //init line visualization
+                var rotateContainer = _this.GlobalParams.get("rotating");
+                for (var cc in rotateContainer.children) {
+                    //console.log(cc);
+                    if (rotateContainer.children[cc].name == "lineMesh") {
+                        //console.log(rotateContainer.children[cc].children);
+                        if (rotateContainer.children[cc].children[city.id] != undefined) {
+                            rotateContainer.children[cc].children[city.id].visible = false;
+                        }
+                    }
+                }
+                city.eventfunc.onChange(function (val) {
+                    _this.CityShowMap[city.name] = val;
+                    for (var cc in rotateContainer.children) {
+                        if (rotateContainer.children[cc].name == "lineMesh") {
+                            console.log(rotateContainer.children[cc].children);
+                            if (rotateContainer.children[cc].children[city.id] != undefined) {
+                                rotateContainer.children[cc].children[city.id].visible = val;
+                            }
+                        }
+                    }
+                });
+            });
             //new 1
             /*
             //A
@@ -1530,6 +1542,7 @@ var ECS;
             //var facilityData = Utils.loadGeoData(latlonData);
             //convert gis data to 3d sphere data
             var moveDataForSphere = new Array();
+            //load data
             for (var _i = 0, moveData_1 = moveData; _i < moveData_1.length; _i++) {
                 var m = moveData_1[_i];
                 var current_humanmove = m.components.get("humanmove");
