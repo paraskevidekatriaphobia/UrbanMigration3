@@ -789,8 +789,6 @@ module ECS {
 
                 city.eventfunc.onChange((val) => {
                     this.CityShowMap[city.name] = val;
-
-
                     for (var cc in rotateContainer.children) {
                         if (rotateContainer.children[cc].name == "lineMesh") {
                             console.log(rotateContainer.children[cc].children);
