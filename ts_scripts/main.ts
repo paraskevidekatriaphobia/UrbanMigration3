@@ -1,7 +1,6 @@
 /// <reference path="./Component.ts" />
-/// <reference path="./System.ts" />
+/// <reference path="./LoadingSystem.ts" />
 /// <reference path="./Entity.ts" />
-/// <reference path="./LoadData.ts" />
 /// <reference path="./HashSet.ts" />
 
 declare var Detector: any;
