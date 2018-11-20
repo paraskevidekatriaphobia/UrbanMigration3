@@ -4,7 +4,7 @@
  *  load data from json file
  *
  * ========================================================================= */
-/// <reference path="./ThreeJsSystem.ts" />
+/// <reference path="./System.ts" />
 module Utils {
     declare var THREE: any;
     declare var $: any;

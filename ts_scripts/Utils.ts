@@ -136,23 +136,9 @@ module Utils {
         return curveGeometry;
     }
 
-
-    //visual selected data
-    export function BuildShpereDataVizGeometry(MoveDataHastSet:any,guid:string){
-        
-
-        var data = MoveDataHastSet.get(guid);
-        //console.log(data);
-        var startPos = new THREE.Vector3(data.startPos[0], data.startPos[1], data.startPos[2]);
-        var endPos = new THREE.Vector3(data.endPos[0], data.endPos[1], data.endPos[2]);
-
-        var randomHeight = randomInt(500,1000);
-        var line = ConnectionLineGeometry(startPos, endPos, 750);
-        return line;
-    }
-
-    //visual all data
     export function BuildSphereDataVizGeometries(MoveDataList: any) {
+
+        var rad = 100;
         var loadLayer = document.getElementById('loading');
         var lineArray = [];
         for (let m of MoveDataList) {
