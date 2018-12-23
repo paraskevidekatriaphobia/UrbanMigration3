@@ -1,7 +1,10 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -503,10 +506,10 @@ var ECS;
         EventListenerSystem.prototype.onMouseWheel = function (event) {
             event.preventDefault();
             var delta = 0;
-            if (event.wheelDelta) {
+            if (event.wheelDelta) { /* IE/Opera. */
                 delta = event.wheelDelta / 120;
             }
-            else if (event.detail) {
+            else if (event.detail) { // firefox
                 delta = -event.detail / 3;
             }
             if (delta) {
@@ -652,15 +655,63 @@ var ECS;
                 Okinawa: "47000"
             };
             _this.CityStartCodeMap = {
+                Hokaido: "002",
+                Aomori: "003",
+                Iwate: "004",
+                Miyagi: "005",
+                Akita: "006",
+                Yamakata: "007",
+                Fukushima: "008",
+                Ibaraki: "009",
+                Tochigi: "010",
+                Gunma: "011",
+                Saitama: "012",
                 Chiba: "013",
                 Tokyo: "014",
                 Kanagawa: "015",
+                Niigata: "016",
+                Toyama: "017",
+                Ishikawa: "018",
+                Fukui: "019",
+                Yamanashi: "020",
+                Nagano: "021",
+                Gifu: "022",
+                Shizuoka: "023",
+                Aichi: "024",
+                Mie: "025",
+                Shiga: "026",
                 Kyoto: "027",
-                Osaka: "028"
+                Osaka: "028",
+                Hyogo: "029",
+                Nara: "030",
+                Wakayama: "031",
+                Tottori: "032",
+                Shimane: "033",
+                Okayama: "034",
+                Hiroshima: "035",
+                Yamaguchi: "036",
+                Tokushima: "037",
+                Kagawa: "038",
+                Ehime: "039",
+                Kouchi: "040",
+                Fukuoka: "041",
+                Saga: "042",
+                Nagasaki: "043",
+                Kumamoto: "044",
+                Ooita: "045",
+                Miyazaki: "046",
+                Kagoshima: "047",
+                Okinawa: "048"
             };
             _this.AreaCityCodeMap = {
-                関東: "Tokyo,Kanagawa,Chiba",
-                関西: "Kyoto,Osaka"
+                北海道: "Hokaido",
+                東北: "Aomori,Iwate,Miyagi,Akita,Yamakata,Fukushima",
+                関東: "Ibaraki,Tochigi,Gunma,Saitama,Chiba,Tokyo,Kanagawa",
+                中部: "Niigata,Toyama,Ishikawa,Fukui,Yamanashi,Nagano,Gifu,Shizuoka,Aichi,Mie",
+                関西: "Shiga,Kyoto,Osaka,Hyogo,Nara,Wakayama",
+                中国: "Tottori,Shimane,Okayama,Hiroshima,Yamaguchi",
+                四国: "Tokushima,Kagawa,Ehime,Kouchi",
+                九州: "Fukuoka,Saga,Nagasaki,Kumamoto,Ooita,Miyazaki,Kagoshima,Okinawa"
             };
             _this.CityShowMap = {
                 Hokaido: true,
@@ -1176,7 +1227,7 @@ var ECS;
             indexedMapTexture.minFilter = THREE.NearestFilter;
             //clouds
             var cloudsMesh = new THREE.Mesh(new THREE.SphereGeometry(radius + 1, segments, segments), new THREE.MeshPhongMaterial({
-                map: new THREE.TextureLoader().load(),
+                map: new THREE.TextureLoader().load( /*'./images/fair_clouds_4k.png'*/),
                 transparent: true
             }));
             rotating.add(cloudsMesh);
