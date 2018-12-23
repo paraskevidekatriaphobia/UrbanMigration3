@@ -1,0 +1,21 @@
+1.先打开startup.bat
+
+2.打开网页的 http://127.0.0.1:8080
+
+3.输入appid:   22354c16f08ca03a198de07844782f5f47f5f59c
+
+4.去官网查找统计ID 
+例如 https://www.e-stat.go.jp/stat-search/database?page=1&layout=datalist&toukei=00200523&bunya_l=02&tstat=000000070001&cycle=0&tclass1=000001008741&result_page=1&second2=1
+
+下面有DB，API
+
+点击API
+
+找到
+statsDataId=0000180001
+
+http://127.0.0.1:8080/?statIds=0000180001
+
+右键检查 network 例如' getMetaInfo?appid=........................  双击打开
+
+右键另存为
