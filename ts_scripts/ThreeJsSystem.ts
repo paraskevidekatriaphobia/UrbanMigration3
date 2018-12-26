@@ -703,12 +703,7 @@ module ECS {
 
             //Global Data
             var global_data = (<GlobalComponent>this.GlobalDatas.components.get("global")).data;
-            // var latlonData = global_data.get("latlonData");
-            // var missileLookup = global_data.get("missileLookup");
-            // var timeBins = global_data.get("timeBins");
-            // var outcomeLookup = global_data.get("outcomeLookup");
-            // var missileColors = global_data.get("missileColors");
-            var moveData = global_data.get("moveData");
+            var moveData2008 = global_data.get("moveData2008");
 
             var scene = new THREE.Scene();
             scene.matrixAutoUpdate = false;
@@ -806,7 +801,7 @@ module ECS {
             var moveDataForSphere = new Utils.HashSet<ThreeJsMoveEntity>();
 
             //load data
-            for (let m of moveData) {
+            for (let m of moveData2008) {
                 var current_humanmove = <HumanMovementDataComponent>m.components.get("humanmove");
                 //console.log("b:" + (<HumanMovementDataComponent>m.components.get("humanmove")).b_id + ",a:" + (<HumanMovementDataComponent>m.components.get("humanmove")).a_id);
 

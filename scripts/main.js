@@ -60,10 +60,11 @@ var ECS;
     ECS.Component = Component;
     var JsonDataComponent = /** @class */ (function (_super) {
         __extends(JsonDataComponent, _super);
-        function JsonDataComponent(value) {
+        function JsonDataComponent(path, value) {
             if (value === void 0) { value = ""; }
             var _this = _super.call(this, "jsondata") || this;
             _this.data = value;
+            _this.file_path = path;
             return _this;
         }
         return JsonDataComponent;
@@ -1166,12 +1167,7 @@ var ECS;
             var tileGroups;
             //Global Data
             var global_data = this.GlobalDatas.components.get("global").data;
-            // var latlonData = global_data.get("latlonData");
-            // var missileLookup = global_data.get("missileLookup");
-            // var timeBins = global_data.get("timeBins");
-            // var outcomeLookup = global_data.get("outcomeLookup");
-            // var missileColors = global_data.get("missileColors");
-            var moveData = global_data.get("moveData");
+            var moveData2008 = global_data.get("moveData2009");
             var scene = new THREE.Scene();
             scene.matrixAutoUpdate = false;
             scene.add(new THREE.AmbientLight(0x505050));
@@ -1244,8 +1240,8 @@ var ECS;
             //convert gis data to 3d sphere data
             var moveDataForSphere = new Utils.HashSet();
             //load data
-            for (var _i = 0, moveData_1 = moveData; _i < moveData_1.length; _i++) {
-                var m = moveData_1[_i];
+            for (var _i = 0, moveData2008_1 = moveData2008; _i < moveData2008_1.length; _i++) {
+                var m = moveData2008_1[_i];
                 var current_humanmove = m.components.get("humanmove");
                 //console.log("b:" + (<HumanMovementDataComponent>m.components.get("humanmove")).b_id + ",a:" + (<HumanMovementDataComponent>m.components.get("humanmove")).a_id);
                 for (var key in this.CityEndCodeMap) {
@@ -1663,11 +1659,13 @@ var ECS;
                     if (ConflictList.get(b) == undefined) {
                         ConflictList.set(b, b);
                     }
+                    continue;
                 }
                 if (after_data == undefined) {
                     if (ConflictList.get(a) == undefined) {
                         ConflictList.set(a, a);
                     }
+                    continue;
                 }
                 var entity_move = new ECS.Entity("move_entity");
                 entity_move.addComponent(new ECS.HumanMovementDataComponent(before_data.id, before_data.lon, before_data.lat, after_data.id, after_data.lon, after_data.lat));
@@ -1686,22 +1684,36 @@ var ECS;
         LoadingSystem.prototype.Execute = function () {
             var _this = this;
             _super.prototype.Execute.call(this);
-            Utils.loadData('./data/citycode.json', this.entities.get("citycode_entity").components.get("jsondata"), function () {
-                Utils.loadData('./data/0003008383.json', _this.entities.get("2008data_entity").components.get("jsondata"), function () {
-                    var cityCode = JSON.parse(_this.entities.get("citycode_entity").components.get("jsondata").data);
-                    var data_2008 = JSON.parse(_this.entities.get("2008data_entity").components.get("jsondata").data);
-                    var moveData = _this.InitDataStructure(data_2008, cityCode);
-                    var entity_GlobalData = new ECS.Entity("global_entity");
-                    var global_data = new Utils.HashSet();
-                    global_data.set("moveData", moveData);
-                    entity_GlobalData.addComponent(new ECS.GlobalComponent(global_data));
-                    var threejs_system = new ECS.ThreeJsSystem();
-                    var eventlistener_system = new ECS.EventListenerSystem();
-                    var other_systems = new Utils.HashSet();
-                    other_systems.set(threejs_system.name, threejs_system);
-                    other_systems.set(eventlistener_system.name, eventlistener_system);
-                    var main_system = new ECS.MainSystem(entity_GlobalData, other_systems);
-                    main_system.Execute();
+            var ENTITY_NUMBER = this.entities.len();
+            var data_load_progress = 0;
+            this.entities.forEach(function (k, v) {
+                var json_data = v.components.get("jsondata");
+                Utils.loadData(json_data.file_path, json_data, function () {
+                    data_load_progress += 1;
+                    //if all of the json data were loaded, execute main system
+                    if (data_load_progress == ENTITY_NUMBER) {
+                        //get loaded json data
+                        var cityCode = JSON.parse(_this.entities.get("citycode_entity").components.get("jsondata").data);
+                        var data_2008 = JSON.parse(_this.entities.get("entity_year_2008").components.get("jsondata").data);
+                        var data_2009 = JSON.parse(_this.entities.get("entity_year_2009").components.get("jsondata").data);
+                        //init migration data by year
+                        var moveData_2008 = _this.InitDataStructure(data_2008, cityCode);
+                        var moveData_2009 = _this.InitDataStructure(data_2009, cityCode);
+                        //set migration data to gobal variable
+                        var entity_GlobalData = new ECS.Entity("global_entity");
+                        var global_data = new Utils.HashSet();
+                        global_data.set("moveData2008", moveData_2008);
+                        global_data.set("moveData2009", moveData_2009);
+                        entity_GlobalData.addComponent(new ECS.GlobalComponent(global_data));
+                        //init system
+                        var threejs_system = new ECS.ThreeJsSystem();
+                        var eventlistener_system = new ECS.EventListenerSystem();
+                        var other_systems = new Utils.HashSet();
+                        other_systems.set(threejs_system.name, threejs_system);
+                        other_systems.set(eventlistener_system.name, eventlistener_system);
+                        var main_system = new ECS.MainSystem(entity_GlobalData, other_systems);
+                        main_system.Execute();
+                    }
                 });
             });
         };
@@ -1713,13 +1725,25 @@ var ECS;
 /// <reference path="./LoadingSystem.ts" />
 /// <reference path="./Entity.ts" />
 /// <reference path="./HashSet.ts" />
+//declare entities
 var entity_citycode = new ECS.Entity("citycode_entity");
-entity_citycode.addComponent(new ECS.JsonDataComponent());
-var entity_2008data = new ECS.Entity("2008data_entity");
-entity_2008data.addComponent(new ECS.JsonDataComponent());
+entity_citycode.addComponent(new ECS.JsonDataComponent("./data/citycode.json"));
+//declare urban migration data from json file(Year)
+var year_list = ["2008", "2009"];
+var entity_year_list = [];
+for (var index = 0; index < year_list.length; index++) {
+    var _year = year_list[index];
+    var entity_year = new ECS.Entity("entity_year_" + _year);
+    entity_year.addComponent(new ECS.JsonDataComponent("./data/" + _year + ".json"));
+    entity_year_list.push(entity_year);
+}
 var entities = new Utils.HashSet();
 entities.set(entity_citycode.name, entity_citycode);
-entities.set(entity_2008data.name, entity_2008data);
+//add year entity data
+for (var index = 0; index < entity_year_list.length; index++) {
+    var entity_year_data = entity_year_list[index];
+    entities.set(entity_year_data.name, entity_year_data);
+}
 var load_system = new ECS.LoadingSystem(entities);
 var load = function () {
     if (!Detector.webgl) {
