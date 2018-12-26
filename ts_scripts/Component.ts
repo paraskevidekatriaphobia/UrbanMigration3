@@ -15,9 +15,11 @@ module ECS {
 
     export class JsonDataComponent extends Component {
         data: string
-        constructor(value: string = "") {
+        file_path: string
+        constructor(path:string, value: string = "") {
             super("jsondata");
             this.data = value;
+            this.file_path = path;
         }
     }
 

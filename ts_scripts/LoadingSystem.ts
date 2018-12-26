@@ -65,18 +65,22 @@ module ECS {
                 if (AfterNotAllowedList.get(a) != undefined) continue;
                 if (n == "-") continue;
 
+                
                 let before_data = MovementBeforeNodeList.get(b);
                 let after_data = MoveAfterNodeList.get(a);
+                
                 if (before_data == undefined) {
                     if (ConflictList.get(b) == undefined) {
                         ConflictList.set(b, b);
                     }
+                    continue;
                 }
 
                 if (after_data == undefined) {
                     if (ConflictList.get(a) == undefined) {
                         ConflictList.set(a, a);
                     }
+                    continue;
                 }
 
 
@@ -103,28 +107,43 @@ module ECS {
         Execute() {
             super.Execute();
 
-            Utils.loadData('./data/citycode.json', <ECS.JsonDataComponent>this.entities.get("citycode_entity").components.get("jsondata"), () => {
-                Utils.loadData('./data/0003008383.json', <ECS.JsonDataComponent>this.entities.get("2008data_entity").components.get("jsondata"), () => {
-                    var cityCode = JSON.parse((<ECS.JsonDataComponent>this.entities.get("citycode_entity").components.get("jsondata")).data);
-                    var data_2008 = JSON.parse((<ECS.JsonDataComponent>this.entities.get("2008data_entity").components.get("jsondata")).data);
-                    var moveData = this.InitDataStructure(data_2008, cityCode);
-
-                    let entity_GlobalData = new ECS.Entity("global_entity");
-                    let global_data = new Utils.HashSet<any>();
-
-                    global_data.set("moveData", moveData);
-                    entity_GlobalData.addComponent(new ECS.GlobalComponent(global_data));
-
-                    let threejs_system = new ECS.ThreeJsSystem();
-                    let eventlistener_system = new ECS.EventListenerSystem();
-                    let other_systems = new Utils.HashSet<System>();
-                    other_systems.set(threejs_system.name, threejs_system);
-                    other_systems.set(eventlistener_system.name, eventlistener_system);
-                    let main_system = new ECS.MainSystem(entity_GlobalData, other_systems);
-                    main_system.Execute();
-
+            const ENTITY_NUMBER = this.entities.len();
+            let data_load_progress = 0;
+            this.entities.forEach((k,v:ECS.Entity)=>{
+                let json_data = <ECS.JsonDataComponent>v.components.get("jsondata");
+                Utils.loadData(json_data.file_path,json_data,() => {
+                    
+                    data_load_progress+=1;
+                    
+                    //if all of the json data were loaded, execute main system
+                    if(data_load_progress == ENTITY_NUMBER){
+                        //get loaded json data
+                        var cityCode = JSON.parse((<ECS.JsonDataComponent>this.entities.get("citycode_entity").components.get("jsondata")).data);
+                        var data_2008 = JSON.parse((<ECS.JsonDataComponent>this.entities.get("entity_year_2008").components.get("jsondata")).data);
+                        var data_2009 = JSON.parse((<ECS.JsonDataComponent>this.entities.get("entity_year_2009").components.get("jsondata")).data);
+                        
+                        //init migration data by year
+                        var moveData_2008 = this.InitDataStructure(data_2008, cityCode);
+                        var moveData_2009 = this.InitDataStructure(data_2009, cityCode);
+                        
+                        //set migration data to gobal variable
+                        let entity_GlobalData = new ECS.Entity("global_entity");
+                        let global_data = new Utils.HashSet<any>();
+                        global_data.set("moveData2008", moveData_2008);
+                        global_data.set("moveData2009", moveData_2009);
+                        entity_GlobalData.addComponent(new ECS.GlobalComponent(global_data));
+                        
+                        //init system
+                        let threejs_system = new ECS.ThreeJsSystem();
+                        let eventlistener_system = new ECS.EventListenerSystem();
+                        let other_systems = new Utils.HashSet<System>();
+                        other_systems.set(threejs_system.name, threejs_system);
+                        other_systems.set(eventlistener_system.name, eventlistener_system);
+                        let main_system = new ECS.MainSystem(entity_GlobalData, other_systems);
+                        main_system.Execute();
+                    }
                 });
-            });
+            })
         }
     }
 }
