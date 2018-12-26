@@ -6,15 +6,31 @@
 declare var Detector: any;
 
 
-
+//declare entities
 let entity_citycode = new ECS.Entity("citycode_entity");
-entity_citycode.addComponent(new ECS.JsonDataComponent());
-let entity_2008data = new ECS.Entity("2008data_entity");
-entity_2008data.addComponent(new ECS.JsonDataComponent());
+entity_citycode.addComponent(new ECS.JsonDataComponent("./data/citycode.json"));
+
+//declare urban migration data from json file(Year)
+let year_list = ["2008","2009"];
+let entity_year_list = [];
+
+for (let index = 0; index < year_list.length; index++) {
+    const _year = year_list[index];
+    let entity_year = new ECS.Entity("entity_year_"+_year);
+    entity_year.addComponent(new ECS.JsonDataComponent("./data/"+_year+".json"));
+    entity_year_list.push(entity_year);
+}
+
 
 let entities = new Utils.HashSet<ECS.Entity>();
 entities.set(entity_citycode.name, entity_citycode);
-entities.set(entity_2008data.name, entity_2008data);
+
+//add year entity data
+for (let index = 0; index < entity_year_list.length; index++) {
+    const entity_year_data = entity_year_list[index];
+    entities.set(entity_year_data.name, entity_year_data);
+}
+
 
 let load_system = new ECS.LoadingSystem(entities);
 
