@@ -57,6 +57,8 @@ module ECS {
                 var a = d["@area"];
                 var n = d["$"];
 
+                console.log(n);
+
                 //select data load (014 Tokyo)
                 //if (b != "014") continue;
 
@@ -68,6 +70,7 @@ module ECS {
                 
                 let before_data = MovementBeforeNodeList.get(b);
                 let after_data = MoveAfterNodeList.get(a);
+
                 
                 if (before_data == undefined) {
                     if (ConflictList.get(b) == undefined) {

@@ -225,6 +225,7 @@ module ECS {
                 particlesGeo.vertices = [];
                 var randomIndex = Utils.randomInt(0, 15);
                 var lineColor = new THREE.Color();
+                var particleCol = new THREE.Color();
 
                 var lastColor;
 
@@ -234,9 +235,10 @@ module ECS {
                 for (let s of l.vertices) {
                     //console.log(s.x);
                     linePositions.push(s.x, s.y, s.z);
-                    lineColor.setHSL(0.5, 1.0, 0.5);
+                    lineColor.setHSL(0, 1.0, 0.5);
                     lineColors.push(lineColor.r,lineColor.g,lineColor.b);
                     lastColor = lineColor;
+                    particleCol.setHSL(0.5,1.0,0.5);
                 }
                 
                 var linesGeo = new THREE.LineGeometry();
@@ -247,7 +249,7 @@ module ECS {
                 var matLine = new THREE.LineMaterial({
 
                     color: 0xffffff,
-                    linewidth: 0.002, // in pixels
+                    linewidth: 0.006, // in pixels
                     vertexColors: THREE.VertexColors,
                     //resolution:  // to be set by renderer, eventually
                     dashed: false
@@ -256,7 +258,7 @@ module ECS {
                 var splineOutline = new THREE.Line2(linesGeo, matLine);
 
                 //particle
-                var particleColor = lastColor.clone();
+                var particleColor = particleCol.clone();
                 var points = l.vertices;
                 var particleCount = 1;
                 var particleSize = l.size * this.GlobalParams.get("dpr");
@@ -559,9 +561,23 @@ module ECS {
 
 
             //GUI
+
+
             var gui_end = new dat.GUI();
             var gui_start = new dat.GUI();
-            
+            var gui_year = new dat.GUI();
+
+            var gui_year_text = {
+                'year' : 2008,
+                'width(px)' : 0.002
+            }
+            var yearbar = gui_year.add(gui_year_text,'year',2008,2017);
+            /*
+            yearbar.onFinshChange(function(value){
+                
+            });*/
+
+
 
             var startArea = new Array();
             var endArea = new Array();
@@ -600,6 +616,7 @@ module ECS {
             var endSelectedList = new Utils.HashSet<string>();
 
             //listen user operation(select 'start' or 'end')
+            
             startArea.forEach((startCityObj)=>{
                 startCityObj.listen.onChange((val) => {
                     var lineArray = new Array();
@@ -615,7 +632,7 @@ module ECS {
                     //render line
                     startSelectedList.forEach((sk,sv)=>{
                         endSelectedList.forEach((ek,ev)=>{
-                            //console.log("start:"+sk+",end:"+ek);
+                            console.log("start:"+sk+",end:"+ek);
                             if(sk != ek){
                                 //data visual
                                 lineArray.push(Utils.BuildShpereDataVizGeometry(moveDataForSphere,sv+ev));
