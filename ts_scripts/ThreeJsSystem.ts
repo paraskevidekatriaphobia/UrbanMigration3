@@ -12,9 +12,7 @@
 /// <reference path="./HashSet.ts" />
 /// <reference path="./Utils.ts" />
 module ECS {
-    declare var Hammer: any;
     declare var THREE: any;
-    declare var THREEx: any;
     declare var $: any;
     declare var Math: any;
     declare var Stats: any;
@@ -35,6 +33,7 @@ module ECS {
         AreaCityCodeMap : any;
         CityStartCodeMap:any;
         StartEndCodeMap:any;
+
         constructor() {
             super("threejs");
             this.GlobalParams = new Utils.HashSet<any>();
@@ -201,6 +200,7 @@ module ECS {
             };
 
         }
+
         wrap(value: any, min: any, rangeSize: any) {
             rangeSize -= min;
             while (value < min) {
@@ -208,6 +208,7 @@ module ECS {
             }
             return value % rangeSize;
         }
+
         GetVisualizedMesh(lineArray: any) {
 
 
@@ -352,6 +353,7 @@ module ECS {
 
             return LineMeshArray;
         }
+
         getHistoricalData(timeBins: any) {
             var history = [];
             var selectionData = <Utils.Selection>this.GlobalParams.get("selectionData");
@@ -616,7 +618,6 @@ module ECS {
             var endSelectedList = new Utils.HashSet<string>();
 
             //listen user operation(select 'start' or 'end')
-            
             startArea.forEach((startCityObj)=>{
                 startCityObj.listen.onChange((val) => {
                     var lineArray = new Array();
@@ -657,6 +658,8 @@ module ECS {
                         endSelectedList.delete(endCityObj.name);
                     }
 
+                    //console.log("/*---------population------------*/")
+                    var visual_line_array = new Array();
                     //render line
                     startSelectedList.forEach((sk,sv)=>{
                         endSelectedList.forEach((ek,ev)=>{
@@ -665,10 +668,24 @@ module ECS {
                                 //data visual
                                 //console.log(moveDataForSphere);
                                 //console.log(sk+ek);
+
+                                //add population to array
+                                //console.log(moveDataForSphere.get(sv+ev).num);
+                                visual_line_array.push(parseInt(moveDataForSphere.get(sv+ev).num));
+                                //console.log(moveDataForSphere.get(sv+ev).num);
                                 lineArray.push(Utils.BuildShpereDataVizGeometry(moveDataForSphere,sv+ev));
                             }
                         });
                     });
+
+                    //calculate line width
+                    //example average
+                    var v_average = 0;
+                    visual_line_array.forEach(v=>{
+                        v_average+=v;
+                    });
+                    console.log("Selected Routes Average value:"+ v_average/visual_line_array.length);
+                    
 
                     this.VisualizationLine(lineArray);
                 }); 
@@ -706,6 +723,7 @@ module ECS {
      
             // guiChanged();
         }
+
         InitThreeJs() {
 
             var glContainer = document.getElementById('glContainer');
@@ -821,7 +839,7 @@ module ECS {
             //convert gis data to 3d sphere data
             var moveDataForSphere = new Utils.HashSet<ThreeJsMoveEntity>();
 
-            //load data
+            //load data from dataset
             for (let m of moveData2008) {
                 var current_humanmove = <HumanMovementDataComponent>m.components.get("humanmove");
                 //console.log("b:" + (<HumanMovementDataComponent>m.components.get("humanmove")).b_id + ",a:" + (<HumanMovementDataComponent>m.components.get("humanmove")).a_id);
@@ -832,9 +850,10 @@ module ECS {
                         var start_lat = current_humanmove.b_lat;
                         var end_lon = current_humanmove.a_lon;
                         var end_lat = current_humanmove.a_lat;
+                        var num = current_humanmove.num;
                         var start_pos = Utils.ConvertGISDataTo3DSphere(start_lon, start_lat);
                         var end_pos = Utils.ConvertGISDataTo3DSphere(end_lon, end_lat);
-                        moveDataForSphere.set(current_humanmove.b_id+current_humanmove.a_id,new ThreeJsMoveEntity(current_humanmove.b_id,current_humanmove.a_id,[start_pos.x, start_pos.y, start_pos.z], [end_pos.x, end_pos.y, end_pos.z]));
+                        moveDataForSphere.set(current_humanmove.b_id+current_humanmove.a_id,new ThreeJsMoveEntity(current_humanmove.b_id,current_humanmove.a_id,[start_pos.x, start_pos.y, start_pos.z], [end_pos.x, end_pos.y, end_pos.z], num));
                     }
                 }
             }
@@ -912,6 +931,7 @@ module ECS {
             this.GlobalParams.set("stats", stats);
             this.GlobalParams.set("timeLast", Date.now());
         }
+
         render() {
             this.GlobalParams.get("renderer").clear();
             this.GlobalParams.get("renderer").render(this.GlobalParams.get("scene"), this.GlobalParams.get("camera"));
@@ -1000,6 +1020,7 @@ module ECS {
             this.GlobalParams.set("osmTile", osmTile);
             this.GlobalParams.set("camera", camera);
         }
+
         animate = () => {
 
             this.AnimeUpdate();
@@ -1017,6 +1038,7 @@ module ECS {
                 }
             });
         }
+
         Execute() {
             super.Execute();
             this.InitThreeJs();

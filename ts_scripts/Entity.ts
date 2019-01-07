@@ -41,11 +41,14 @@ module ECS {
         endPos:[number,number,number];
         start_id :any;
         end_id:any;
-        constructor(start_id:any,end_id:any,startPos: [number,number,number],endPos: [number,number,number]) {
+
+        num:number;
+        constructor(start_id:any,end_id:any,startPos: [number,number,number],endPos: [number,number,number], num:number) {
             this.startPos = startPos;
             this.endPos = endPos;
             this.start_id = start_id;
             this.end_id = end_id;
+            this.num = num;
         }
     }
 }
