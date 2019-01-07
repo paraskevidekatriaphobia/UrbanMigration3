@@ -1,7 +1,10 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -771,12 +774,12 @@ var ECS;
             }
             return value % rangeSize;
         };
-        ThreeJsSystem.prototype.GetVisualizedMesh = function (lineArray) {
+        ThreeJsSystem.prototype.GetVisualizedMesh = function (lineArray, numberArray) {
+            var _this = this;
             var LineMeshArray = [];
             var randomColor = [0x6C6C6C]; //[0x1A62A5, 0x6C6C6C, 0xAEB21A, 0x1DB2C4, 0xB68982, 0x9FBAE3, 0xFD690F, 0xFEAE65, 0xDA5CB6, 0x279221, 0xD2D479, 0x89DC78, 0xBBBBBB, 0xCA0F1E, 0x814EAF, 0xB89FCB, 0x78433B];
             //	go through the data from year, and find all relevant geometries
-            for (var _i = 0, lineArray_1 = lineArray; _i < lineArray_1.length; _i++) {
-                var l = lineArray_1[_i];
+            lineArray.forEach(function (k, v) {
                 var particlesGeo = new THREE.BufferGeometry();
                 var particlePositions = [];
                 var particleSizes = [];
@@ -789,8 +792,8 @@ var ECS;
                 var linePositions = [];
                 var lineColors = [];
                 //	grab the colors from the vertices
-                for (var _a = 0, _b = l.vertices; _a < _b.length; _a++) {
-                    var s_1 = _b[_a];
+                for (var _i = 0, _a = v.vertices; _i < _a.length; _i++) {
+                    var s_1 = _a[_i];
                     //console.log(s.x);
                     linePositions.push(s_1.x, s_1.y, s_1.z);
                     lineColor.setHSL(0, 1.0, 0.5);
@@ -801,10 +804,13 @@ var ECS;
                 var linesGeo = new THREE.LineGeometry();
                 linesGeo.setPositions(linePositions);
                 linesGeo.setColors(lineColors);
+                //get current number
+                var n = numberArray.get(k);
+                n = n * 0.00001;
                 //define line material
                 var matLine = new THREE.LineMaterial({
                     color: 0xffffff,
-                    linewidth: 0.006,
+                    linewidth: n,
                     vertexColors: THREE.VertexColors,
                     //resolution:  // to be set by renderer, eventually
                     dashed: false
@@ -812,9 +818,9 @@ var ECS;
                 var splineOutline = new THREE.Line2(linesGeo, matLine);
                 //particle
                 var particleColor = particleCol.clone();
-                var points = l.vertices;
+                var points = v.vertices;
                 var particleCount = 1;
-                var particleSize = l.size * this.GlobalParams.get("dpr");
+                var particleSize = v.size * _this.GlobalParams.get("dpr");
                 for (var rIndex = 0; rIndex < points.length - 1; rIndex++) {
                     for (var s = 0; s < particleCount; s++) {
                         var point = points[rIndex];
@@ -881,38 +887,10 @@ var ECS;
                     this.geometry.attributes.position.needsUpdate = true;
                 };
                 LineMeshArray.push(splineOutline);
-            }
+            });
             return LineMeshArray;
         };
-        ThreeJsSystem.prototype.getHistoricalData = function (timeBins) {
-            var history = [];
-            var selectionData = this.GlobalParams.get("selectionData");
-            var outcomeCategories = selectionData.getOutcomeCategories();
-            var missileCategories = selectionData.getMissileCategories();
-            for (var i in timeBins) {
-                var yearBin = timeBins[i].data;
-                var value = { successes: 0, failures: 0, unknowns: 0 };
-                for (var s in yearBin) {
-                    var set = yearBin[s];
-                    var outcomeName = set.outcome;
-                    var missileName = set.missile;
-                    var relevantCategory = ($.inArray(outcomeName, outcomeCategories) >= 0) &&
-                        ($.inArray(missileName, missileCategories) >= 0);
-                    if (relevantCategory == false)
-                        continue;
-                    if (outcomeName === 'success')
-                        value.successes++;
-                    else if (outcomeName === 'failure')
-                        value.failures++;
-                    else
-                        value.unknowns++;
-                }
-                history.push(value);
-            }
-            // console.log(history);
-            return history;
-        };
-        ThreeJsSystem.prototype.VisualizationLine = function (lineArray) {
+        ThreeJsSystem.prototype.VisualizationLine = function (lineArray, numberArray) {
             var visualizationMesh = this.GlobalParams.get("visualizationMesh");
             //	clear children
             while (visualizationMesh.children.length > 0) {
@@ -920,7 +898,7 @@ var ECS;
                 visualizationMesh.remove(c);
             }
             //	build the mesh
-            var mesh = this.GetVisualizedMesh(lineArray);
+            var mesh = this.GetVisualizedMesh(lineArray, numberArray);
             //	add it to scene graph
             for (var i = 0; i < mesh.length; i++) {
                 visualizationMesh.add(mesh[i]);
@@ -1119,12 +1097,12 @@ var ECS;
                             }
                         });
                     });
-                    _this.VisualizationLine(lineArray);
+                    //this.VisualizationLine(lineArray);
                 });
             });
             endArea.forEach(function (endCityObj) {
                 endCityObj.listen.onChange(function (val) {
-                    var lineArray = new Array();
+                    var lineArray = new Utils.HashSet();
                     var moveDataForSphere = _this.GlobalParams.get("moveDataForSphere");
                     //console.log("end pos,name:"+endCityObj.name+",id:"+endCityObj.id);
                     if (val) {
@@ -1134,7 +1112,7 @@ var ECS;
                         endSelectedList["delete"](endCityObj.name);
                     }
                     //console.log("/*---------population------------*/")
-                    var visual_line_array = new Array();
+                    var visual_line_array = new Utils.HashSet();
                     //render line
                     startSelectedList.forEach(function (sk, sv) {
                         endSelectedList.forEach(function (ek, ev) {
@@ -1145,20 +1123,20 @@ var ECS;
                                 //console.log(sk+ek);
                                 //add population to array
                                 //console.log(moveDataForSphere.get(sv+ev).num);
-                                visual_line_array.push(parseInt(moveDataForSphere.get(sv + ev).num));
+                                visual_line_array.set(sv + ev, parseInt(moveDataForSphere.get(sv + ev).num));
                                 //console.log(moveDataForSphere.get(sv+ev).num);
-                                lineArray.push(Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
+                                lineArray.set(sv + ev, Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
                             }
                         });
                     });
                     //calculate line width
                     //example average
-                    var v_average = 0;
-                    visual_line_array.forEach(function (v) {
-                        v_average += v;
-                    });
-                    console.log("Selected Routes Average value:" + v_average / visual_line_array.length);
-                    _this.VisualizationLine(lineArray);
+                    // var v_average = 0;
+                    // visual_line_array.forEach(v=>{
+                    //     v_average+=v;
+                    // });
+                    // console.log("Selected Routes Average value:"+ v_average/visual_line_array.length);
+                    _this.VisualizationLine(lineArray, visual_line_array);
                 });
             });
             //------------------------------------------------------------------------------------------------------------------

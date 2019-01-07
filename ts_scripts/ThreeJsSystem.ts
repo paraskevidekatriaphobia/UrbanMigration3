@@ -209,7 +209,7 @@ module ECS {
             return value % rangeSize;
         }
 
-        GetVisualizedMesh(lineArray: any) {
+        GetVisualizedMesh(lineArray: Utils.HashSet<any>, numberArray:Utils.HashSet<any>) {
 
 
             var LineMeshArray = [];
@@ -217,7 +217,7 @@ module ECS {
 
 
             //	go through the data from year, and find all relevant geometries
-            for (let l of lineArray) {
+            lineArray.forEach((k,v)=>{
 
                 var particlesGeo = new THREE.BufferGeometry();
                 var particlePositions = [];
@@ -233,7 +233,7 @@ module ECS {
                 var linePositions = [];
                 var lineColors = [];
                 //	grab the colors from the vertices
-                for (let s of l.vertices) {
+                for (let s of v.vertices) {
                     //console.log(s.x);
                     linePositions.push(s.x, s.y, s.z);
                     lineColor.setHSL(0, 1.0, 0.5);
@@ -246,11 +246,17 @@ module ECS {
                 linesGeo.setPositions(linePositions);
                 linesGeo.setColors(lineColors);
 
+
+
+                //get current number
+                var n = numberArray.get(k);
+                n = n * 0.00001;
+
                 //define line material
                 var matLine = new THREE.LineMaterial({
 
                     color: 0xffffff,
-                    linewidth: 0.006, // in pixels
+                    linewidth: n, // in pixels
                     vertexColors: THREE.VertexColors,
                     //resolution:  // to be set by renderer, eventually
                     dashed: false
@@ -259,10 +265,10 @@ module ECS {
                 var splineOutline = new THREE.Line2(linesGeo, matLine);
 
                 //particle
-                var particleColor = particleCol.clone();
-                var points = l.vertices;
+                 var particleColor = particleCol.clone();
+                var points = v.vertices;
                 var particleCount = 1;
-                var particleSize = l.size * this.GlobalParams.get("dpr");
+                var particleSize = v.size * this.GlobalParams.get("dpr");
 
                 for (var rIndex = 0; rIndex < points.length - 1; rIndex++) {
                     for (var s = 0; s < particleCount; s++) {
@@ -346,7 +352,7 @@ module ECS {
                     this.geometry.attributes.position.needsUpdate = true;
                 };
                 LineMeshArray.push(splineOutline);
-            }
+            }) 
 
 
 
@@ -354,40 +360,8 @@ module ECS {
             return LineMeshArray;
         }
 
-        getHistoricalData(timeBins: any) {
-            var history = [];
-            var selectionData = <Utils.Selection>this.GlobalParams.get("selectionData");
-            var outcomeCategories = selectionData.getOutcomeCategories();
-            var missileCategories = selectionData.getMissileCategories();
-
-            for (var i in timeBins) {
-                var yearBin = timeBins[i].data;
-                var value = { successes: 0, failures: 0, unknowns: 0 };
-                for (var s in yearBin) {
-                    var set = yearBin[s];
-                    var outcomeName = set.outcome;
-                    var missileName = set.missile;
-
-                    var relevantCategory = ($.inArray(outcomeName, outcomeCategories) >= 0) &&
-                        ($.inArray(missileName, missileCategories) >= 0);
-
-                    if (relevantCategory == false)
-                        continue;
-
-                    if (outcomeName === 'success')
-                        value.successes++;
-                    else if (outcomeName === 'failure')
-                        value.failures++;
-                    else
-                        value.unknowns++;
-                }
-                history.push(value);
-            }
-            // console.log(history);
-            return history;
-        }
-
-        VisualizationLine(lineArray: any) {
+  
+        VisualizationLine(lineArray: Utils.HashSet<any>,numberArray: Utils.HashSet<any>) {
             var visualizationMesh = this.GlobalParams.get("visualizationMesh");
             //	clear children
             while (visualizationMesh.children.length > 0) {
@@ -397,7 +371,7 @@ module ECS {
 
 
             //	build the mesh
-            var mesh = this.GetVisualizedMesh(lineArray);
+            var mesh = this.GetVisualizedMesh(lineArray,numberArray);
 
             //	add it to scene graph
             for (var i = 0; i < mesh.length; i++) {
@@ -641,14 +615,14 @@ module ECS {
                         });
                     });
 
-                    this.VisualizationLine(lineArray);
+                    //this.VisualizationLine(lineArray);
 
                 }); 
             });
 
             endArea.forEach((endCityObj)=>{
                 endCityObj.listen.onChange((val) => {
-                    var lineArray = new Array();
+                    var lineArray = new Utils.HashSet<any>();
                     var moveDataForSphere = this.GlobalParams.get("moveDataForSphere");
                     
                     //console.log("end pos,name:"+endCityObj.name+",id:"+endCityObj.id);
@@ -659,7 +633,7 @@ module ECS {
                     }
 
                     //console.log("/*---------population------------*/")
-                    var visual_line_array = new Array();
+                    var visual_line_array = new Utils.HashSet<number>();
                     //render line
                     startSelectedList.forEach((sk,sv)=>{
                         endSelectedList.forEach((ek,ev)=>{
@@ -671,23 +645,25 @@ module ECS {
 
                                 //add population to array
                                 //console.log(moveDataForSphere.get(sv+ev).num);
-                                visual_line_array.push(parseInt(moveDataForSphere.get(sv+ev).num));
+                                visual_line_array.set(sv+ev,parseInt(moveDataForSphere.get(sv+ev).num));
                                 //console.log(moveDataForSphere.get(sv+ev).num);
-                                lineArray.push(Utils.BuildShpereDataVizGeometry(moveDataForSphere,sv+ev));
+                                lineArray.set(sv+ev,Utils.BuildShpereDataVizGeometry(moveDataForSphere,sv+ev));
                             }
                         });
                     });
 
                     //calculate line width
                     //example average
-                    var v_average = 0;
-                    visual_line_array.forEach(v=>{
-                        v_average+=v;
-                    });
-                    console.log("Selected Routes Average value:"+ v_average/visual_line_array.length);
+                    // var v_average = 0;
+                    // visual_line_array.forEach(v=>{
+                    //     v_average+=v;
+
+                    // });
+                    // console.log("Selected Routes Average value:"+ v_average/visual_line_array.length);
                     
 
-                    this.VisualizationLine(lineArray);
+
+                    this.VisualizationLine(lineArray,visual_line_array);
                 }); 
             });
 
