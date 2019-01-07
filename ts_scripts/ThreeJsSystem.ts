@@ -658,7 +658,8 @@ module ECS {
                         endSelectedList.delete(endCityObj.name);
                     }
 
-                    console.log("/*---------population------------*/")
+                    //console.log("/*---------population------------*/")
+                    var visual_line_array = new Array();
                     //render line
                     startSelectedList.forEach((sk,sv)=>{
                         endSelectedList.forEach((ek,ev)=>{
@@ -667,11 +668,24 @@ module ECS {
                                 //data visual
                                 //console.log(moveDataForSphere);
                                 //console.log(sk+ek);
-                                console.log(moveDataForSphere.get(sv+ev).num);
+
+                                //add population to array
+                                //console.log(moveDataForSphere.get(sv+ev).num);
+                                visual_line_array.push(parseInt(moveDataForSphere.get(sv+ev).num));
+                                //console.log(moveDataForSphere.get(sv+ev).num);
                                 lineArray.push(Utils.BuildShpereDataVizGeometry(moveDataForSphere,sv+ev));
                             }
                         });
                     });
+
+                    //calculate line width
+                    //example average
+                    var v_average = 0;
+                    visual_line_array.forEach(v=>{
+                        v_average+=v;
+                    });
+                    console.log("Selected Routes Average value:"+ v_average/visual_line_array.length);
+                    
 
                     this.VisualizationLine(lineArray);
                 }); 
