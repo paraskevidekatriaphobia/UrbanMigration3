@@ -212,7 +212,7 @@ module ECS {
 
 
             var LineMeshArray = [];
-            var randomColor = [0x1A62A5];//[0x1A62A5, 0x6C6C6C, 0xAEB21A, 0x1DB2C4, 0xB68982, 0x9FBAE3, 0xFD690F, 0xFEAE65, 0xDA5CB6, 0x279221, 0xD2D479, 0x89DC78, 0xBBBBBB, 0xCA0F1E, 0x814EAF, 0xB89FCB, 0x78433B];
+            var randomColor = [0x6C6C6C];//[0x1A62A5, 0x6C6C6C, 0xAEB21A, 0x1DB2C4, 0xB68982, 0x9FBAE3, 0xFD690F, 0xFEAE65, 0xDA5CB6, 0x279221, 0xD2D479, 0x89DC78, 0xBBBBBB, 0xCA0F1E, 0x814EAF, 0xB89FCB, 0x78433B];
 
 
             //	go through the data from year, and find all relevant geometries
@@ -224,20 +224,38 @@ module ECS {
                 var particleColors = [];
                 particlesGeo.vertices = [];
                 var randomIndex = Utils.randomInt(0, 15);
-                var lineColor = new THREE.Color(randomColor[0]);
+                var lineColor = new THREE.Color();
 
                 var lastColor;
+
+                var linePositions = [];
                 var lineColors = [];
                 //	grab the colors from the vertices
                 for (let s of l.vertices) {
-                    var v = l.vertices[s];
-                    lineColors.push(lineColor);
+                    //console.log(s.x);
+                    linePositions.push(s.x, s.y, s.z);
+                    lineColor.setHSL(0.5, 1.0, 0.5);
+                    lineColors.push(lineColor.r,lineColor.g,lineColor.b);
                     lastColor = lineColor;
                 }
+                
+                var linesGeo = new THREE.LineGeometry();
+                linesGeo.setPositions(linePositions);
+                linesGeo.setColors(lineColors);
 
-                var linesGeo = new THREE.Geometry();
-                linesGeo.merge(l);
+                //define line material
+                var matLine = new THREE.LineMaterial({
 
+                    color: 0xffffff,
+                    linewidth: 0.002, // in pixels
+                    vertexColors: THREE.VertexColors,
+                    //resolution:  // to be set by renderer, eventually
+                    dashed: false
+    
+                });
+                var splineOutline = new THREE.Line2(linesGeo, matLine);
+
+                //particle
                 var particleColor = lastColor.clone();
                 var points = l.vertices;
                 var particleCount = 1;
@@ -261,20 +279,6 @@ module ECS {
                         particleColors.push(particleColor.r, particleColor.g, particleColor.b);
                     }
                 }
-
-                linesGeo.colors = lineColors;
-
-
-                //	make a final mesh out of this composite
-                var splineOutline = new THREE.Line(linesGeo, new THREE.LineBasicMaterial(
-                    {
-                        color: 0xffffff, opacity: 1.0, blending:
-                            THREE.AdditiveBlending, transparent: true,
-                        depthWrite: false, vertexColors: true,
-                        linewidth: 1
-                    })
-                );
-
 
                 particlesGeo.addAttribute('position', new THREE.BufferAttribute(new Float32Array(particlePositions), 3));
                 particlesGeo.addAttribute('size', new THREE.BufferAttribute(new Float32Array(particleSizes), 1));
@@ -962,11 +966,9 @@ module ECS {
             this.GlobalParams.set("lonStamp", lonStamp);
             this.GlobalParams.set("xtile", xtile);
             this.GlobalParams.set("ytile", ytile);
-
-
-
-
             this.GlobalParams.set("timeLast", Date.now());
+
+
             EventListenerGlobalParams.set("rotateTargetX", rotateTargetX);
             EventListenerGlobalParams.set("rotateTargetY", rotateTargetY);
             EventListenerGlobalParams.set("rotateX", rotateX);
@@ -1000,7 +1002,6 @@ module ECS {
         }
         Execute() {
             super.Execute();
-            //console.log("three.js main system:"+this.MainSystem.name);
             this.InitThreeJs();
             this.initUi();
             this.animate();
