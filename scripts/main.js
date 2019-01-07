@@ -1,7 +1,10 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -782,6 +785,7 @@ var ECS;
                 particlesGeo.vertices = [];
                 var randomIndex = Utils.randomInt(0, 15);
                 var lineColor = new THREE.Color();
+                var particleCol = new THREE.Color();
                 var lastColor;
                 var linePositions = [];
                 var lineColors = [];
@@ -790,9 +794,10 @@ var ECS;
                     var s_1 = _b[_a];
                     //console.log(s.x);
                     linePositions.push(s_1.x, s_1.y, s_1.z);
-                    lineColor.setHSL(0.5, 1.0, 0.5);
+                    lineColor.setHSL(0, 1.0, 0.5);
                     lineColors.push(lineColor.r, lineColor.g, lineColor.b);
                     lastColor = lineColor;
+                    particleCol.setHSL(0.5, 1.0, 0.5);
                 }
                 var linesGeo = new THREE.LineGeometry();
                 linesGeo.setPositions(linePositions);
@@ -800,14 +805,14 @@ var ECS;
                 //define line material
                 var matLine = new THREE.LineMaterial({
                     color: 0xffffff,
-                    linewidth: 0.002,
+                    linewidth: 0.006,
                     vertexColors: THREE.VertexColors,
                     //resolution:  // to be set by renderer, eventually
                     dashed: false
                 });
                 var splineOutline = new THREE.Line2(linesGeo, matLine);
                 //particle
-                var particleColor = lastColor.clone();
+                var particleColor = particleCol.clone();
                 var points = l.vertices;
                 var particleCount = 1;
                 var particleSize = l.size * this.GlobalParams.get("dpr");
@@ -1055,6 +1060,16 @@ var ECS;
             //GUI
             var gui_end = new dat.GUI();
             var gui_start = new dat.GUI();
+            var gui_year = new dat.GUI();
+            var gui_year_text = {
+                'year': 2008,
+                'width(px)': 0.002
+            };
+            var yearbar = gui_year.add(gui_year_text, 'year', 2008, 2017);
+            /*
+            yearbar.onFinshChange(function(value){
+                
+            });*/
             var startArea = new Array();
             var endArea = new Array();
             //init ui and data through mapping table
@@ -1098,7 +1113,7 @@ var ECS;
                     //render line
                     startSelectedList.forEach(function (sk, sv) {
                         endSelectedList.forEach(function (ek, ev) {
-                            //console.log("start:"+sk+",end:"+ek);
+                            console.log("start:" + sk + ",end:" + ek);
                             if (sk != ek) {
                                 //data visual
                                 lineArray.push(Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
@@ -1647,6 +1662,7 @@ var ECS;
                 var b = d["@cat01"];
                 var a = d["@area"];
                 var n = d["$"];
+                console.log(n);
                 //select data load (014 Tokyo)
                 //if (b != "014") continue;
                 //not need data
