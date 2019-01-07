@@ -9,30 +9,8 @@
 <body onload="load()" id="dataviz" class="">
     <div id="wrapper">
         <div id="loading">
-            <h2>Loading Data. Please wait...</h2>
+            <h2>Loading Data</h2>
         </div>
-
-        <!-- <div>
-            <table id="marker_template" class="marker" style="left:'0px';top:'0px'">
-                <tr>
-                    <td>
-                        <span id="testText" class="test"></span>
-                        <div class="close"></div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <span id="detailText" class="detail"></span>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <span id="descriptionText" class="description"></span>
-                    </td>
-                </tr>
-            </table>
-        </div> -->
-
         <!-- /.container -->
 
         <div id="visualization">
@@ -49,9 +27,17 @@
         <script src="./scripts/three.js/EarthControls.js"></script>
         <script src="./scripts/three.js/THREEx.KeyboardState.js"></script>
         <script src="./scripts/three.js/THREEx.WindowResize.js"></script>
+
+        <!-- line library(three.js) -->
+        <script src='./scripts/three.js/line2/LineSegmentsGeometry.js'></script>
+        <script src='./scripts/three.js/line2/LineGeometry.js'></script>
+        <script src='./scripts/three.js/line2/WireframeGeometry2.js'></script>
+        <script src='./scripts/three.js/line2/LineMaterial.js'></script>
+        <script src='./scripts/three.js/line2/LineSegments2.js'></script>
+        <script src='./scripts/three.js/line2/Line2.js'></script>
+
         <script src="./scripts/lib/jquery-3.2.1.min.js"></script>
-        <!-- <script src="./scripts/lib/d3-4.11.0.min.js"></script>
-        <script src="./scripts/lib/ui.controls.js"></script> -->
+
 
 
         <script type="x-shader/x-vertex" id="vertexshader">

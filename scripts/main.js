@@ -1,10 +1,7 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -774,7 +771,7 @@ var ECS;
         };
         ThreeJsSystem.prototype.GetVisualizedMesh = function (lineArray) {
             var LineMeshArray = [];
-            var randomColor = [0x1A62A5]; //[0x1A62A5, 0x6C6C6C, 0xAEB21A, 0x1DB2C4, 0xB68982, 0x9FBAE3, 0xFD690F, 0xFEAE65, 0xDA5CB6, 0x279221, 0xD2D479, 0x89DC78, 0xBBBBBB, 0xCA0F1E, 0x814EAF, 0xB89FCB, 0x78433B];
+            var randomColor = [0x6C6C6C]; //[0x1A62A5, 0x6C6C6C, 0xAEB21A, 0x1DB2C4, 0xB68982, 0x9FBAE3, 0xFD690F, 0xFEAE65, 0xDA5CB6, 0x279221, 0xD2D479, 0x89DC78, 0xBBBBBB, 0xCA0F1E, 0x814EAF, 0xB89FCB, 0x78433B];
             //	go through the data from year, and find all relevant geometries
             for (var _i = 0, lineArray_1 = lineArray; _i < lineArray_1.length; _i++) {
                 var l = lineArray_1[_i];
@@ -784,18 +781,32 @@ var ECS;
                 var particleColors = [];
                 particlesGeo.vertices = [];
                 var randomIndex = Utils.randomInt(0, 15);
-                var lineColor = new THREE.Color(randomColor[0]);
+                var lineColor = new THREE.Color();
                 var lastColor;
+                var linePositions = [];
                 var lineColors = [];
                 //	grab the colors from the vertices
                 for (var _a = 0, _b = l.vertices; _a < _b.length; _a++) {
                     var s_1 = _b[_a];
-                    var v = l.vertices[s_1];
-                    lineColors.push(lineColor);
+                    //console.log(s.x);
+                    linePositions.push(s_1.x, s_1.y, s_1.z);
+                    lineColor.setHSL(0.5, 1.0, 0.5);
+                    lineColors.push(lineColor.r, lineColor.g, lineColor.b);
                     lastColor = lineColor;
                 }
-                var linesGeo = new THREE.Geometry();
-                linesGeo.merge(l);
+                var linesGeo = new THREE.LineGeometry();
+                linesGeo.setPositions(linePositions);
+                linesGeo.setColors(lineColors);
+                //define line material
+                var matLine = new THREE.LineMaterial({
+                    color: 0xffffff,
+                    linewidth: 0.002,
+                    vertexColors: THREE.VertexColors,
+                    //resolution:  // to be set by renderer, eventually
+                    dashed: false
+                });
+                var splineOutline = new THREE.Line2(linesGeo, matLine);
+                //particle
                 var particleColor = lastColor.clone();
                 var points = l.vertices;
                 var particleCount = 1;
@@ -817,13 +828,6 @@ var ECS;
                         particleColors.push(particleColor.r, particleColor.g, particleColor.b);
                     }
                 }
-                linesGeo.colors = lineColors;
-                //	make a final mesh out of this composite
-                var splineOutline = new THREE.Line(linesGeo, new THREE.LineBasicMaterial({
-                    color: 0xffffff, opacity: 1.0, blending: THREE.AdditiveBlending, transparent: true,
-                    depthWrite: false, vertexColors: true,
-                    linewidth: 1
-                }));
                 particlesGeo.addAttribute('position', new THREE.BufferAttribute(new Float32Array(particlePositions), 3));
                 particlesGeo.addAttribute('size', new THREE.BufferAttribute(new Float32Array(particleSizes), 1));
                 particlesGeo.addAttribute('customColor', new THREE.BufferAttribute(new Float32Array(particleColors), 3));
@@ -1167,7 +1171,7 @@ var ECS;
             var tileGroups;
             //Global Data
             var global_data = this.GlobalDatas.components.get("global").data;
-            var moveData2008 = global_data.get("moveData2009");
+            var moveData2008 = global_data.get("moveData2008");
             var scene = new THREE.Scene();
             scene.matrixAutoUpdate = false;
             scene.add(new THREE.AmbientLight(0x505050));
@@ -1387,7 +1391,6 @@ var ECS;
         };
         ThreeJsSystem.prototype.Execute = function () {
             _super.prototype.Execute.call(this);
-            //console.log("three.js main system:"+this.MainSystem.name);
             this.InitThreeJs();
             this.initUi();
             this.animate();
