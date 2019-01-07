@@ -21,6 +21,7 @@ module ECS {
             super("loading");
             this.entities = entities;
         }
+
         InitDataStructure(data: any, cityCode: any) {
             var data_2008_value = data.GET_STATS_DATA.STATISTICAL_DATA.DATA_INF.VALUE;
             var MovementBeforeNode = cityCode.MovementBeforeNode.Value;
@@ -57,7 +58,7 @@ module ECS {
                 var a = d["@area"];
                 var n = d["$"];
 
-                console.log(n);
+                //console.log(n);
 
                 //select data load (014 Tokyo)
                 //if (b != "014") continue;
@@ -91,7 +92,7 @@ module ECS {
 
 
                 let entity_move = new Entity("move_entity");
-                entity_move.addComponent(new HumanMovementDataComponent(before_data.id, before_data.lon, before_data.lat, after_data.id, after_data.lon, after_data.lat));
+                entity_move.addComponent(new HumanMovementDataComponent(before_data.id, before_data.lon, before_data.lat, after_data.id, after_data.lon, after_data.lat, n));
                 MovementArray.push(entity_move);
                 //console.log("before cood:"+before_data.lon+","+before_data.lat);
                 //console.log("after cood:"+after_data.lon+","+after_data.lat);
@@ -107,6 +108,7 @@ module ECS {
 
             return MovementArray;
         }
+        
         Execute() {
             super.Execute();
 

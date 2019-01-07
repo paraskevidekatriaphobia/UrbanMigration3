@@ -1,10 +1,7 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -84,7 +81,7 @@ var ECS;
     ECS.JapanCityDataComponent = JapanCityDataComponent;
     var HumanMovementDataComponent = /** @class */ (function (_super) {
         __extends(HumanMovementDataComponent, _super);
-        function HumanMovementDataComponent(b_id, b_lon, b_lat, a_id, a_lon, a_lat) {
+        function HumanMovementDataComponent(b_id, b_lon, b_lat, a_id, a_lon, a_lat, num) {
             var _this = _super.call(this, "humanmove") || this;
             _this.b_id = b_id;
             _this.b_lon = b_lon;
@@ -92,6 +89,7 @@ var ECS;
             _this.a_id = a_id;
             _this.a_lon = a_lon;
             _this.a_lat = a_lat;
+            _this.num = num;
             return _this;
         }
         return HumanMovementDataComponent;
@@ -145,11 +143,12 @@ var ECS;
     }());
     ECS.Entity = Entity;
     var ThreeJsMoveEntity = /** @class */ (function () {
-        function ThreeJsMoveEntity(start_id, end_id, startPos, endPos) {
+        function ThreeJsMoveEntity(start_id, end_id, startPos, endPos, num) {
             this.startPos = startPos;
             this.endPos = endPos;
             this.start_id = start_id;
             this.end_id = end_id;
+            this.num = num;
         }
         return ThreeJsMoveEntity;
     }());
@@ -1134,6 +1133,7 @@ var ECS;
                     else {
                         endSelectedList["delete"](endCityObj.name);
                     }
+                    console.log("/*---------population------------*/");
                     //render line
                     startSelectedList.forEach(function (sk, sv) {
                         endSelectedList.forEach(function (ek, ev) {
@@ -1142,6 +1142,7 @@ var ECS;
                                 //data visual
                                 //console.log(moveDataForSphere);
                                 //console.log(sk+ek);
+                                console.log(moveDataForSphere.get(sv + ev).num);
                                 lineArray.push(Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
                             }
                         });
@@ -1258,7 +1259,7 @@ var ECS;
             //var facilityData = Utils.loadGeoData(latlonData);
             //convert gis data to 3d sphere data
             var moveDataForSphere = new Utils.HashSet();
-            //load data
+            //load data from dataset
             for (var _i = 0, moveData2008_1 = moveData2008; _i < moveData2008_1.length; _i++) {
                 var m = moveData2008_1[_i];
                 var current_humanmove = m.components.get("humanmove");
@@ -1269,9 +1270,10 @@ var ECS;
                         var start_lat = current_humanmove.b_lat;
                         var end_lon = current_humanmove.a_lon;
                         var end_lat = current_humanmove.a_lat;
+                        var num = current_humanmove.num;
                         var start_pos = Utils.ConvertGISDataTo3DSphere(start_lon, start_lat);
                         var end_pos = Utils.ConvertGISDataTo3DSphere(end_lon, end_lat);
-                        moveDataForSphere.set(current_humanmove.b_id + current_humanmove.a_id, new ECS.ThreeJsMoveEntity(current_humanmove.b_id, current_humanmove.a_id, [start_pos.x, start_pos.y, start_pos.z], [end_pos.x, end_pos.y, end_pos.z]));
+                        moveDataForSphere.set(current_humanmove.b_id + current_humanmove.a_id, new ECS.ThreeJsMoveEntity(current_humanmove.b_id, current_humanmove.a_id, [start_pos.x, start_pos.y, start_pos.z], [end_pos.x, end_pos.y, end_pos.z], num));
                     }
                 }
             }
@@ -1662,7 +1664,7 @@ var ECS;
                 var b = d["@cat01"];
                 var a = d["@area"];
                 var n = d["$"];
-                console.log(n);
+                //console.log(n);
                 //select data load (014 Tokyo)
                 //if (b != "014") continue;
                 //not need data
@@ -1687,7 +1689,7 @@ var ECS;
                     continue;
                 }
                 var entity_move = new ECS.Entity("move_entity");
-                entity_move.addComponent(new ECS.HumanMovementDataComponent(before_data.id, before_data.lon, before_data.lat, after_data.id, after_data.lon, after_data.lat));
+                entity_move.addComponent(new ECS.HumanMovementDataComponent(before_data.id, before_data.lon, before_data.lat, after_data.id, after_data.lon, after_data.lat, n));
                 MovementArray.push(entity_move);
                 //console.log("before cood:"+before_data.lon+","+before_data.lat);
                 //console.log("after cood:"+after_data.lon+","+after_data.lat);

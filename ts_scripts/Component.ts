@@ -24,9 +24,9 @@ module ECS {
     }
 
     export class JapanCityDataComponent extends Component {
-        id: string
-        lon: number
-        lat: number
+        id: string;
+        lon: number;
+        lat: number;
         constructor(id: string ,lon: number,lat: number ) {
             super("japancity");
             this.id = id;
@@ -36,13 +36,15 @@ module ECS {
     }
 
     export class HumanMovementDataComponent extends Component {
-        b_id: string
-        b_lon: number
-        b_lat: number
-        a_id: string
-        a_lon: number
-        a_lat: number
-        constructor(b_id: string ,b_lon: number,b_lat: number,a_id: string ,a_lon: number,a_lat: number ) {
+        b_id: string;
+        b_lon: number;
+        b_lat: number;
+        a_id: string;
+        a_lon: number;
+        a_lat: number;
+
+        num:number;
+        constructor(b_id: string ,b_lon: number,b_lat: number,a_id: string ,a_lon: number,a_lat: number ,num:number ) {
             super("humanmove");
             this.b_id = b_id;
             this.b_lon = b_lon;
@@ -50,6 +52,7 @@ module ECS {
             this.a_id = a_id;
             this.a_lon = a_lon;
             this.a_lat = a_lat;
+            this.num = num;
         }
     }
 
