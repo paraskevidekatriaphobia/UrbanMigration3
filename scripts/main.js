@@ -38,6 +38,12 @@ var Utils;
                 f(k, this.items[k]);
             }
         };
+        HashSet.prototype.forEach2 = function (f) {
+            for (var k in this.items) {
+                f(k, this.items[k]);
+                return this.items[k];
+            }
+        };
         return HashSet;
     }());
     Utils.HashSet = HashSet;
@@ -590,7 +596,7 @@ var ECS;
 var ECS;
 (function (ECS) {
     // declare var d3Graphs:any;
-    var citylistname = new Array("Hokaido", "Aomori", "Iwate", "Miyagi", "Akita", "Yamakata", "Fukushima", "Ibaraki", "Tochigi", "Gunma", "Saitama", "Chiba", "Tokyo", "Kanagawa", "Niigata", "Toyama", "Ishikawa", "Fukui", "Yamanashi", "Nagano", "Gifu", "Shizuoka", "Aichi", "Mie", "Shiga", "Kyoto", "Osaka", "Hyogo", "Nara", "Wakayama", "Tottori", "Shimane", "Okayama", "Hiroshima", "Yamaguchi", "Tokushima", "Kagawa", "Ehime", "Kouchi", "Fukuoka", "Saga", "Nagasaki", "Kumamoto", "Ooita", "Miyazaki", "Kagoshima", "Okinawa");
+    var citylistname = new Array("Hokaido", "Aomori", "Iwate", "Miyagi", "Akita", "Yamakata", "Fukushima", "Ibaraki", "Tochigi", "Gunma", "Saitama", "Chiba", "Tokyo", "Kanagawa", "Niigata", "Toyama", "Ishikawa", "Fukui", "Yamanashi", "Nagano", "Gifu", "Shizuoka", "Aichi", "Mie", "Shiga", "Kyoto", "Osaka", "Hyogo", "Nara", "Wakayama", "Tottori", "Shimane", "Okayama", "Hiroshima", "Yamaguchi", "Tokushima", "Kagawa", "Ehime", "Kouchi", "Fukuoka", "Saga", "Nagasaki", "Kumamoto", "Ooita", "Miyazaki", "Kagoshima", "Okinawa", "Saitamashi", "Chibashi", "Tokyotokubetuku", "Yokohamashi", "Kawasakishi", "Kyotoshi", "Osakashi", "Sakaishi", "Koubeshi");
     var ThreeJsSystem = /** @class */ (function (_super) {
         __extends(ThreeJsSystem, _super);
         function ThreeJsSystem() {
@@ -655,7 +661,16 @@ var ECS;
                 Ooita: "44000",
                 Miyazaki: "45000",
                 Kagoshima: "46000",
-                Okinawa: "47000"
+                Okinawa: "47000",
+                Saitamashi: "11100",
+                Chibashi: "12100",
+                Tokyotokubetuku: "13100",
+                Yokohamashi: "14100",
+                Kawasakishi: "14130",
+                Kyotoshi: "26100",
+                Osakashi: "27100",
+                Sakaishi: "27140",
+                Koubeshi: "28100"
             };
             _this.CityStartCodeMap = {
                 Hokaido: "002",
@@ -704,7 +719,16 @@ var ECS;
                 Ooita: "045",
                 Miyazaki: "046",
                 Kagoshima: "047",
-                Okinawa: "048"
+                Okinawa: "048",
+                Saitamashi: "055",
+                Chibashi: "056",
+                Tokyotokubetuku: "057",
+                Yokohamashi: "058",
+                Kawasakishi: "059",
+                Kyotoshi: "064",
+                Osakashi: "065",
+                Sakaishi: "066",
+                Koubeshi: "067"
             };
             _this.AreaCityCodeMap = {
                 北海道: "Hokaido",
@@ -714,7 +738,9 @@ var ECS;
                 関西: "Shiga,Kyoto,Osaka,Hyogo,Nara,Wakayama",
                 中国: "Tottori,Shimane,Okayama,Hiroshima,Yamaguchi",
                 四国: "Tokushima,Kagawa,Ehime,Kouchi",
-                九州: "Fukuoka,Saga,Nagasaki,Kumamoto,Ooita,Miyazaki,Kagoshima,Okinawa"
+                九州: "Fukuoka,Saga,Nagasaki,Kumamoto,Ooita,Miyazaki,Kagoshima,Okinawa",
+                大都市_東京圏: "Saitamashi,Chibashi,Tokyotokubetuku,Yokohamashi,Kawasakishi",
+                大都市_大阪圏: "Kyotoshi,Osakashi,Sakaishi,Koubeshi"
             };
             _this.CityShowMap = {
                 Hokaido: true,
@@ -806,7 +832,6 @@ var ECS;
                 linesGeo.setColors(lineColors);
                 //get current number
                 var n = numberArray.get(k);
-                n = n * 0.00001;
                 //define line material
                 var matLine = new THREE.LineMaterial({
                     color: 0xffffff,
@@ -1037,16 +1062,16 @@ var ECS;
             //GUI
             var gui_end = new dat.GUI();
             var gui_start = new dat.GUI();
-            var gui_year = new dat.GUI();
+            //var gui_year = new dat.GUI();
             var gui_year_text = {
-                'year': 2008,
-                'width(px)': 0.002
+                'year': 2008
             };
-            var yearbar = gui_year.add(gui_year_text, 'year', 2008, 2017);
+            //var yearbar = gui_year.add(gui_year_text, 'year', 2008, 2017);
             /*
             yearbar.onFinshChange(function(value){
                 
             });*/
+            //gui_year.add( earthParam,"LoadOSM", true).onChange(guiChanged);
             var startArea = new Array();
             var endArea = new Array();
             //init ui and data through mapping table
@@ -1077,7 +1102,7 @@ var ECS;
             //listen user operation(select 'start' or 'end')
             startArea.forEach(function (startCityObj) {
                 startCityObj.listen.onChange(function (val) {
-                    var lineArray = new Array();
+                    var lineArray = new Utils.HashSet();
                     var moveDataForSphere = _this.GlobalParams.get("moveDataForSphere");
                     //console.log(moveDataForSphere);
                     //console.log("start pos,name:"+startCityObj.name+",id:"+startCityObj.id);
@@ -1087,17 +1112,37 @@ var ECS;
                     else {
                         startSelectedList["delete"](startCityObj.name);
                     }
+                    var visual_line_array = new Utils.HashSet();
                     //render line
                     startSelectedList.forEach(function (sk, sv) {
                         endSelectedList.forEach(function (ek, ev) {
                             console.log("start:" + sk + ",end:" + ek);
                             if (sk != ek) {
                                 //data visual
-                                lineArray.push(Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
+                                visual_line_array.set(sv + ev, parseInt(moveDataForSphere.get(sv + ev).num));
+                                //lineArray.push(Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
+                                lineArray.set(sv + ev, Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
                             }
                         });
                     });
+                    var maxnumberoflinewidth = 0;
+                    var minnumberoflinewidth = 999999999;
+                    var sumnumberoflinewidth = 0;
+                    //var maxminarray = new Array;
+                    visual_line_array.forEach(function (name, nub) {
+                        if (nub > maxnumberoflinewidth)
+                            maxnumberoflinewidth = nub;
+                        if (nub < minnumberoflinewidth)
+                            minnumberoflinewidth = nub;
+                    });
+                    visual_line_array.forEach(function (name, nub) {
+                        if (maxnumberoflinewidth == minnumberoflinewidth)
+                            visual_line_array.set(name, 0.006);
+                        else
+                            visual_line_array.set(name, ((nub - minnumberoflinewidth) / (maxnumberoflinewidth - minnumberoflinewidth)) * (0.006 - 0.001) + 0.001);
+                    });
                     //this.VisualizationLine(lineArray);
+                    _this.VisualizationLine(lineArray, visual_line_array);
                 });
             });
             endArea.forEach(function (endCityObj) {
@@ -1123,7 +1168,7 @@ var ECS;
                                 //console.log(sk+ek);
                                 //add population to array
                                 //console.log(moveDataForSphere.get(sv+ev).num);
-                                visual_line_array.set(sv + ev, parseInt(moveDataForSphere.get(sv + ev).num));
+                                visual_line_array.set(sv + ev, parseInt(moveDataForSphere.get(sv + ev).num)); //linewidth--vi_li_array(key,num)
                                 //console.log(moveDataForSphere.get(sv+ev).num);
                                 lineArray.set(sv + ev, Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
                             }
@@ -1136,6 +1181,25 @@ var ECS;
                     //     v_average+=v;
                     // });
                     // console.log("Selected Routes Average value:"+ v_average/visual_line_array.length);
+                    //visual_line_array.length
+                    var maxnumberoflinewidth = 0;
+                    var minnumberoflinewidth = 999999999;
+                    var sumnumberoflinewidth = 0;
+                    //var maxminarray = new Array;
+                    visual_line_array.forEach(function (name, nub) {
+                        if (nub > maxnumberoflinewidth)
+                            maxnumberoflinewidth = nub;
+                        if (nub < minnumberoflinewidth)
+                            minnumberoflinewidth = nub;
+                        console.log(name + ":" + nub);
+                    });
+                    visual_line_array.forEach(function (name, nub) {
+                        if (maxnumberoflinewidth == minnumberoflinewidth)
+                            visual_line_array.set(name, 0.006);
+                        else
+                            visual_line_array.set(name, ((nub - minnumberoflinewidth) / (maxnumberoflinewidth - minnumberoflinewidth)) * (0.006 - 0.001) + 0.001);
+                    });
+                    console.log("sum=" + sumnumberoflinewidth + ";maxnub=" + maxnumberoflinewidth + ";minnub=" + minnumberoflinewidth);
                     _this.VisualizationLine(lineArray, visual_line_array);
                 });
             });

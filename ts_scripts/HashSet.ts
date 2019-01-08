@@ -33,5 +33,12 @@ module Utils{
                 f(k, this.items[k]);
             }
         }
+        
+        forEach2(f:typFuncKeyVal) : T {
+            for (let k in this.items) {
+                f(k, this.items[k]);
+                return this.items[k]
+            }
+        }
     }
 }
