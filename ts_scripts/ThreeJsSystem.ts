@@ -28,6 +28,9 @@ module ECS {
         "Saitamashi", "Chibashi", "Tokyotokubetuku", "Yokohamashi","Kawasakishi",
         "Kyotoshi", "Osakashi", "Sakaishi", "Koubeshi");
 
+    let startSelectedList = new Utils.HashSet<string>();
+    let endSelectedList = new Utils.HashSet<string>();
+
     export class ThreeJsSystem extends System {
         GlobalParams: Utils.HashSet<any>;
         CityEndCodeMap: any;
@@ -39,7 +42,7 @@ module ECS {
         constructor() {
             super("threejs");
             this.GlobalParams = new Utils.HashSet<any>();
-            this.CityEndCodeMap = {
+            this.CityStartCodeMap = {
                 Hokaido: "01000",
                 Aomori: "02000",
                 Iwate: "03000",
@@ -98,7 +101,7 @@ module ECS {
                 Koubeshi:"28100"
             };
 
-            this.CityStartCodeMap = {
+            this.CityEndCodeMap = {
                 Hokaido: "002",
                 Aomori: "003",
                 Iwate: "004",
@@ -288,7 +291,10 @@ module ECS {
                 var particleColor = particleCol.clone();
                 var points = v.vertices;
                 var particleCount = 1;
-                var particleSize = v.size * this.GlobalParams.get("dpr");
+
+                //ratio
+                var particle_size_ratio = 300;
+                var particleSize = v.size * this.GlobalParams.get("dpr") * particle_size_ratio * n;
 
                 for (var rIndex = 0; rIndex < points.length - 1; rIndex++) {
                     for (var s = 0; s < particleCount; s++) {
@@ -535,12 +541,56 @@ module ECS {
             this.GlobalParams.set("tileGroup", tileGroup);
         }
 
+
+        UpdateLineMesh(){
+            var lineArray = new Utils.HashSet<any>();
+            var moveDataForSphere = this.GlobalParams.get("moveDataForSphere");
+            //console.log("/*---------population------------*/")
+            var visual_line_array = new Utils.HashSet<number>();
+            //render line
+            startSelectedList.forEach((sk, sv) => {
+                endSelectedList.forEach((ek, ev) => {
+                    //console.log("start:"+sk+",end:"+ek);
+                    if (sk != ek) {
+                        //data visual
+                        //console.log(moveDataForSphere);
+                        //console.log(sk+ek);
+
+                        //add population to array
+                        //console.log(moveDataForSphere.get(sv+ev).num);
+                        visual_line_array.set(sv + ev, parseInt(moveDataForSphere.get(sv + ev).num)); //linewidth--vi_li_array(key,num)
+                        //console.log(moveDataForSphere.get(sv+ev).num);
+                        lineArray.set(sv + ev, Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
+                    }
+                });
+            });
+
+            var maxnumberoflinewidth = 0;
+            var minnumberoflinewidth = 1e9;
+            //var maxminarray = new Array;
+            visual_line_array.forEach((name, nub) => {
+                if (nub > maxnumberoflinewidth) maxnumberoflinewidth = nub;
+                if (nub < minnumberoflinewidth) minnumberoflinewidth = nub;
+                //console.log(name+":"+nub);
+            });
+
+            visual_line_array.forEach((name, nub) => {
+                if (maxnumberoflinewidth == minnumberoflinewidth) visual_line_array.set(name, 0.006)
+                else visual_line_array.set(name, ((nub - minnumberoflinewidth) / (maxnumberoflinewidth - minnumberoflinewidth)) * (0.006 - 0.001) + 0.001);
+            })
+            //console.log("sum=" + sumnumberoflinewidth + ";maxnub=" + maxnumberoflinewidth + ";minnub=" + minnumberoflinewidth);
+            this.VisualizationLine(lineArray, visual_line_array);
+        }
+
         initUi() {
 
             //init user UI
             var GlobalParams = this.GlobalParams;
             var osmSwitch = GlobalParams.get("osmSwitch");
-
+            var gui_year_text = {
+                'year': 2008,
+                LoadOSM: osmSwitch
+            }
 
             //********** */
             var startParam = new Object();
@@ -561,21 +611,19 @@ module ECS {
 
             var gui_end = new dat.GUI();
             var gui_start = new dat.GUI();
-            //var gui_year = new dat.GUI();
+            var gui_year = new dat.GUI();
 
-            var gui_year_text = {
-                'year': 2008
-            }
+      
             
-            //var yearbar = gui_year.add(gui_year_text, 'year', 2008, 2017);
+            var yearbar = gui_year.add(gui_year_text, 'year', 2008, 2017).listen().onFinishChange((val)=>{
+                var year =  Math.round(val);
+                //console.log(year);
+                this.ListenYearChange(year.toString());
+            });
 
-
-            /*
-            yearbar.onFinshChange(function(value){
-                
-            });*/
-            
-            //gui_year.add( earthParam,"LoadOSM", true).onChange(guiChanged);
+            var osm_map = gui_year.add( gui_year_text,"LoadOSM", false).listen().onChange((val)=>{
+                GlobalParams.set("osmSwitch", val);
+            });
 
             
 
@@ -611,65 +659,23 @@ module ECS {
                 });
             });
 
-
-            var startSelectedList = new Utils.HashSet<string>();
-            var endSelectedList = new Utils.HashSet<string>();
-
-
-
             //listen user operation(select 'start' or 'end')
             startArea.forEach((startCityObj) => {
                 startCityObj.listen.onChange((val) => {
-                    var lineArray = new Utils.HashSet<any>();
-                    var moveDataForSphere = this.GlobalParams.get("moveDataForSphere");
-                    //console.log(moveDataForSphere);
-                    //console.log("start pos,name:"+startCityObj.name+",id:"+startCityObj.id);
+
                     if (val) {
                         startSelectedList.set(startCityObj.name, startCityObj.id);
                     } else {
                         startSelectedList.delete(startCityObj.name);
                     }
 
-                    var visual_line_array = new Utils.HashSet<number>();
-                    //render line
-
-                    startSelectedList.forEach((sk, sv) => {
-                        endSelectedList.forEach((ek, ev) => {
-                            console.log("start:" + sk + ",end:" + ek);
-                            if (sk != ek) {
-                                //data visual
-                                visual_line_array.set(sv + ev, parseInt(moveDataForSphere.get(sv + ev).num));
-                                //lineArray.push(Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
-                                lineArray.set(sv + ev, Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
-                            }
-                        });
-                    });
-
-                    var maxnumberoflinewidth = 0;
-                    var minnumberoflinewidth = 999999999;
-                    var sumnumberoflinewidth = 0;
-                    //var maxminarray = new Array;
-                    visual_line_array.forEach((name, nub) => {
-                        if (nub > maxnumberoflinewidth) maxnumberoflinewidth = nub;
-                        if (nub < minnumberoflinewidth) minnumberoflinewidth = nub;
-                    });
-
-                    visual_line_array.forEach((name, nub) => {
-                        if (maxnumberoflinewidth == minnumberoflinewidth) visual_line_array.set(name, 0.006)
-                        else visual_line_array.set(name, ((nub - minnumberoflinewidth) / (maxnumberoflinewidth - minnumberoflinewidth)) * (0.006 - 0.001) + 0.001);
-                    })
-
-
-                    //this.VisualizationLine(lineArray);
-                    this.VisualizationLine(lineArray, visual_line_array);
+                    this.UpdateLineMesh();
 
                 });
             });
 
             endArea.forEach((endCityObj) => {
                 endCityObj.listen.onChange((val) => {
-                    var lineArray = new Utils.HashSet<any>();
-                    var moveDataForSphere = this.GlobalParams.get("moveDataForSphere");
 
                     //console.log("end pos,name:"+endCityObj.name+",id:"+endCityObj.id);
                     if (val) {
@@ -678,90 +684,41 @@ module ECS {
                         endSelectedList.delete(endCityObj.name);
                     }
 
-                    //console.log("/*---------population------------*/")
-                    var visual_line_array = new Utils.HashSet<number>();
-                    //render line
-                    startSelectedList.forEach((sk, sv) => {
-                        endSelectedList.forEach((ek, ev) => {
-                            //console.log("start:"+sk+",end:"+ek);
-                            if (sk != ek) {
-                                //data visual
-                                //console.log(moveDataForSphere);
-                                //console.log(sk+ek);
-
-                                //add population to array
-                                //console.log(moveDataForSphere.get(sv+ev).num);
-                                visual_line_array.set(sv + ev, parseInt(moveDataForSphere.get(sv + ev).num)); //linewidth--vi_li_array(key,num)
-                                //console.log(moveDataForSphere.get(sv+ev).num);
-                                lineArray.set(sv + ev, Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
-                            }
-                        });
-                    });
-
-                    //calculate line width
-                    //example average
-                    // var v_average = 0;
-                    // visual_line_array.forEach(v=>{
-                    //     v_average+=v;
-
-                    // });
-                    // console.log("Selected Routes Average value:"+ v_average/visual_line_array.length);
-
-                    //visual_line_array.length
-
-                    var maxnumberoflinewidth = 0;
-                    var minnumberoflinewidth = 999999999;
-                    var sumnumberoflinewidth = 0;
-                    //var maxminarray = new Array;
-                    visual_line_array.forEach((name, nub) => {
-                        if (nub > maxnumberoflinewidth) maxnumberoflinewidth = nub;
-                        if (nub < minnumberoflinewidth) minnumberoflinewidth = nub;
-                        console.log(name+":"+nub);
-                    });
-
-                    visual_line_array.forEach((name, nub) => {
-                        if (maxnumberoflinewidth == minnumberoflinewidth) visual_line_array.set(name, 0.006)
-                        else visual_line_array.set(name, ((nub - minnumberoflinewidth) / (maxnumberoflinewidth - minnumberoflinewidth)) * (0.006 - 0.001) + 0.001);
-                    })
-                    console.log("sum=" + sumnumberoflinewidth + ";maxnub=" + maxnumberoflinewidth + ";minnub=" + minnumberoflinewidth);
-
-
-
-                    this.VisualizationLine(lineArray, visual_line_array);
+                    this.UpdateLineMesh();
                 });
             });
+        }
 
+        ListenYearChange(year:string, init:boolean = false){
+            //Global Data
+            var global_data = (<GlobalComponent>this.GlobalDatas.components.get("global")).data;
+            var moveData = global_data.get("moveData"+year);
 
+            //convert gis data to 3d sphere data
+            var moveDataForSphere = new Utils.HashSet<ThreeJsMoveEntity>();
 
+            //load data from dataset
+            for (let m of moveData) {
+                var current_humanmove = <HumanMovementDataComponent>m.components.get("humanmove");
+                //console.log("b:" + (<HumanMovementDataComponent>m.components.get("humanmove")).b_id + ",a:" + (<HumanMovementDataComponent>m.components.get("humanmove")).a_id);
 
-            //------------------------------------------------------------------------------------------------------------------
-            // function guiChanged() {
+                for (var key in this.CityEndCodeMap) {
+                    if (this.CityEndCodeMap[key] == current_humanmove.a_id) {
+                        var start_lon = current_humanmove.b_lon;
+                        var start_lat = current_humanmove.b_lat;
+                        var end_lon = current_humanmove.a_lon;
+                        var end_lat = current_humanmove.a_lat;
+                        var num = current_humanmove.num;
+                        var start_pos = Utils.ConvertGISDataTo3DSphere(start_lon, start_lat);
+                        var end_pos = Utils.ConvertGISDataTo3DSphere(end_lon, end_lat);
+                        moveDataForSphere.set(current_humanmove.b_id + current_humanmove.a_id, new ThreeJsMoveEntity(current_humanmove.b_id, current_humanmove.a_id, [start_pos.x, start_pos.y, start_pos.z], [end_pos.x, end_pos.y, end_pos.z], num));
+                    }
+                }
+            }
 
-            //     var camera = GlobalParams.get("camera");
-            //     var renderer = GlobalParams.get("renderer");
-            //     var scene = GlobalParams.get("scene");
-            //     var nighttexture = GlobalParams.get("earthParam").NightView;
-            //     var osmSwitchNow = GlobalParams.get("earthParam").LoadOSM;
-            //     var earthSphere = GlobalParams.get("earthSphere");
+            this.GlobalParams.set("moveDataForSphere", moveDataForSphere);
 
-            //     if (nighttexture) {
-            //         earthSphere.material.map = new THREE.TextureLoader().load('./images/nightearth2016.jpg');
-            //         earthSphere.material.needsUpdate = true;
-            //     } else {
-            //         earthSphere.material.map = new THREE.TextureLoader().load('./images/2_no_clouds_4k.jpg');
-            //         earthSphere.material.needsUpdate = true;
-            //     }
-
-            //     if (osmSwitchNow) GlobalParams.set("osmSwitch", true);
-            //     else GlobalParams.set("osmSwitch", false);
-
-            //     GlobalParams.set("earthSphere", earthSphere);
-            //     renderer.render(scene, camera);
-
-            // }
-
-
-            // guiChanged();
+            if(!init)this.UpdateLineMesh();
         }
 
         InitThreeJs() {
@@ -779,10 +736,6 @@ module ECS {
             var MAX_TILEMESH = 500;
             var tileGroup = [];
             var tileGroups;
-
-            //Global Data
-            var global_data = (<GlobalComponent>this.GlobalDatas.components.get("global")).data;
-            var moveData2008 = global_data.get("moveData2008");
 
             var scene = new THREE.Scene();
             scene.matrixAutoUpdate = false;
@@ -873,37 +826,14 @@ module ECS {
             rotating.add(atmosphere);
 
 
-            //country coordinates
-            //var facilityData = Utils.loadGeoData(latlonData);
-
-            //convert gis data to 3d sphere data
-            var moveDataForSphere = new Utils.HashSet<ThreeJsMoveEntity>();
-
-            //load data from dataset
-            for (let m of moveData2008) {
-                var current_humanmove = <HumanMovementDataComponent>m.components.get("humanmove");
-                //console.log("b:" + (<HumanMovementDataComponent>m.components.get("humanmove")).b_id + ",a:" + (<HumanMovementDataComponent>m.components.get("humanmove")).a_id);
-
-                for (var key in this.CityEndCodeMap) {
-                    if (this.CityEndCodeMap[key] == current_humanmove.a_id) {
-                        var start_lon = current_humanmove.b_lon;
-                        var start_lat = current_humanmove.b_lat;
-                        var end_lon = current_humanmove.a_lon;
-                        var end_lat = current_humanmove.a_lat;
-                        var num = current_humanmove.num;
-                        var start_pos = Utils.ConvertGISDataTo3DSphere(start_lon, start_lat);
-                        var end_pos = Utils.ConvertGISDataTo3DSphere(end_lon, end_lat);
-                        moveDataForSphere.set(current_humanmove.b_id + current_humanmove.a_id, new ThreeJsMoveEntity(current_humanmove.b_id, current_humanmove.a_id, [start_pos.x, start_pos.y, start_pos.z], [end_pos.x, end_pos.y, end_pos.z], num));
-                    }
-                }
-            }
+            //import year data
+            this.ListenYearChange("2008",true);
 
             var visualizationMesh = new THREE.Object3D();
             this.GlobalParams.set("visualizationMesh", visualizationMesh);
             rotating.add(visualizationMesh);
             this.GlobalParams.set("rotating", rotating);
-            this.GlobalParams.set("moveDataForSphere", moveDataForSphere);
-
+            
             // //data visual
             //var lineArray = Utils.BuildSphereDataVizGeometries(moveDataForSphere);
 

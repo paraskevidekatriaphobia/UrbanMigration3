@@ -36,26 +36,28 @@ module ECS {
             }
 
             let BeforeNotAllowedList = new Utils.HashSet<string>();
-            BeforeNotAllowedList.set("001", "001");
-            BeforeNotAllowedList.set("049", "049");
-            BeforeNotAllowedList.set("050", "050");
-            BeforeNotAllowedList.set("051", "051");
-            BeforeNotAllowedList.set("052", "052");
+            BeforeNotAllowedList.set("00999", "00999");
+            BeforeNotAllowedList.set("48000", "48000");
+            BeforeNotAllowedList.set("49000", "49000");
+            BeforeNotAllowedList.set("50000", "50000");
+            BeforeNotAllowedList.set("00413", "00413");
+            BeforeNotAllowedList.set("99000", "99000");
+            BeforeNotAllowedList.set("99100", "99100");
+
             let AfterNotAllowedList = new Utils.HashSet<string>();
-            AfterNotAllowedList.set("00999", "00999");
-            AfterNotAllowedList.set("48000", "48000");
-            AfterNotAllowedList.set("49000", "49000");
-            AfterNotAllowedList.set("50000", "50000");
-            AfterNotAllowedList.set("00413", "00413");
-            AfterNotAllowedList.set("99000", "99000");
-            AfterNotAllowedList.set("99100", "99100");
+            AfterNotAllowedList.set("001", "001");
+            AfterNotAllowedList.set("049", "049");
+            AfterNotAllowedList.set("050", "050");
+            AfterNotAllowedList.set("051", "051");
+            AfterNotAllowedList.set("052", "052");
+      
 
 
             let ConflictList = new Utils.HashSet<string>();
             let MovementArray = new Array<Entity>();
             for (let d of data_2008_value) {
-                var b = d["@cat01"];
-                var a = d["@area"];
+                var b = d["@area"];
+                var a = d["@cat01"];
                 var n = d["$"];
 
                 //console.log(n);

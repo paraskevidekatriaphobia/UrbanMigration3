@@ -8,7 +8,7 @@ declare var Detector: any;
 
 //declare entities
 let entity_citycode = new ECS.Entity("citycode_entity");
-entity_citycode.addComponent(new ECS.JsonDataComponent("./data/citycode.json"));
+entity_citycode.addComponent(new ECS.JsonDataComponent("./data/citycode_v2.0.json"));
 
 //declare urban migration data from json file(Year)
 let year_list = ["2008","2009"];
