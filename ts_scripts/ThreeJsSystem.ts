@@ -293,8 +293,9 @@ module ECS {
                 var particleCount = 1;
 
                 //ratio
-                var particle_size_ratio = 300;
+                var particle_size_ratio = 450;
                 var particleSize = v.size * this.GlobalParams.get("dpr") * particle_size_ratio * n;
+                //var particleSize = 10000 * n;
 
                 for (var rIndex = 0; rIndex < points.length - 1; rIndex++) {
                     for (var s = 0; s < particleCount; s++) {
@@ -559,7 +560,7 @@ module ECS {
                         //add population to array
                         //console.log(moveDataForSphere.get(sv+ev).num);
                         visual_line_array.set(sv + ev, parseInt(moveDataForSphere.get(sv + ev).num)); //linewidth--vi_li_array(key,num)
-                        //console.log(moveDataForSphere.get(sv+ev).num);
+                        console.log("window:"+window.devicePixelRatio);
                         lineArray.set(sv + ev, Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
                     }
                 });
@@ -615,7 +616,7 @@ module ECS {
 
       
             
-            var yearbar = gui_year.add(gui_year_text, 'year', 2008, 2017).listen().onFinishChange((val)=>{
+            var yearbar = gui_year.add(gui_year_text, 'year', 2008, 2017).listen().onChange((val)=>{
                 var year =  Math.round(val);
                 //console.log(year);
                 this.ListenYearChange(year.toString());

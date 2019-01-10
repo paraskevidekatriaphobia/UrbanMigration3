@@ -848,8 +848,9 @@ var ECS;
                 var points = v.vertices;
                 var particleCount = 1;
                 //ratio
-                var particle_size_ratio = 300;
+                var particle_size_ratio = 450;
                 var particleSize = v.size * _this.GlobalParams.get("dpr") * particle_size_ratio * n;
+                //var particleSize = 10000 * n;
                 for (var rIndex = 0; rIndex < points.length - 1; rIndex++) {
                     for (var s = 0; s < particleCount; s++) {
                         var point = points[rIndex];
@@ -1064,7 +1065,7 @@ var ECS;
                         //add population to array
                         //console.log(moveDataForSphere.get(sv+ev).num);
                         visual_line_array.set(sv + ev, parseInt(moveDataForSphere.get(sv + ev).num)); //linewidth--vi_li_array(key,num)
-                        //console.log(moveDataForSphere.get(sv+ev).num);
+                        console.log("window:" + window.devicePixelRatio);
                         lineArray.set(sv + ev, Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
                     }
                 });
@@ -1111,7 +1112,7 @@ var ECS;
             var gui_end = new dat.GUI();
             var gui_start = new dat.GUI();
             var gui_year = new dat.GUI();
-            var yearbar = gui_year.add(gui_year_text, 'year', 2008, 2017).listen().onFinishChange(function (val) {
+            var yearbar = gui_year.add(gui_year_text, 'year', 2008, 2017).listen().onChange(function (val) {
                 var year = Math.round(val);
                 //console.log(year);
                 _this.ListenYearChange(year.toString());
@@ -1718,15 +1719,39 @@ var ECS;
                         //get loaded json data
                         var cityCode = JSON.parse(_this.entities.get("citycode_entity").components.get("jsondata").data);
                         var data_2008 = JSON.parse(_this.entities.get("entity_year_2008").components.get("jsondata").data);
-                        var data_2009 = JSON.parse(_this.entities.get("entity_year_2009").components.get("jsondata").data);
+                        //var data_2009 = JSON.parse((<ECS.JsonDataComponent>this.entities.get("entity_year_2009").components.get("jsondata")).data);
+                        var data_2010 = JSON.parse(_this.entities.get("entity_year_2009").components.get("jsondata").data);
+                        var data_2011 = JSON.parse(_this.entities.get("entity_year_2011").components.get("jsondata").data);
+                        var data_2012 = JSON.parse(_this.entities.get("entity_year_2012").components.get("jsondata").data);
+                        var data_2013 = JSON.parse(_this.entities.get("entity_year_2013").components.get("jsondata").data);
+                        var data_2014 = JSON.parse(_this.entities.get("entity_year_2014").components.get("jsondata").data);
+                        var data_2015 = JSON.parse(_this.entities.get("entity_year_2015").components.get("jsondata").data);
+                        var data_2016 = JSON.parse(_this.entities.get("entity_year_2016").components.get("jsondata").data);
+                        var data_2017 = JSON.parse(_this.entities.get("entity_year_2017").components.get("jsondata").data);
                         //init migration data by year
                         var moveData_2008 = _this.InitDataStructure(data_2008, cityCode);
                         var moveData_2009 = _this.InitDataStructure(data_2009, cityCode);
+                        var moveData_2010 = _this.InitDataStructure(data_2010, cityCode);
+                        var moveData_2011 = _this.InitDataStructure(data_2011, cityCode);
+                        var moveData_2012 = _this.InitDataStructure(data_2012, cityCode);
+                        var moveData_2013 = _this.InitDataStructure(data_2013, cityCode);
+                        var moveData_2014 = _this.InitDataStructure(data_2014, cityCode);
+                        var moveData_2015 = _this.InitDataStructure(data_2015, cityCode);
+                        var moveData_2016 = _this.InitDataStructure(data_2016, cityCode);
+                        var moveData_2017 = _this.InitDataStructure(data_2017, cityCode);
                         //set migration data to gobal variable
                         var entity_GlobalData = new ECS.Entity("global_entity");
                         var global_data = new Utils.HashSet();
                         global_data.set("moveData2008", moveData_2008);
                         global_data.set("moveData2009", moveData_2009);
+                        global_data.set("moveData2010", moveData_2010);
+                        global_data.set("moveData2011", moveData_2011);
+                        global_data.set("moveData2012", moveData_2012);
+                        global_data.set("moveData2013", moveData_2013);
+                        global_data.set("moveData2014", moveData_2014);
+                        global_data.set("moveData2015", moveData_2015);
+                        global_data.set("moveData2016", moveData_2016);
+                        global_data.set("moveData2017", moveData_2017);
                         entity_GlobalData.addComponent(new ECS.GlobalComponent(global_data));
                         //init system
                         var threejs_system = new ECS.ThreeJsSystem();
