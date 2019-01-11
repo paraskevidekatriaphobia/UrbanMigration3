@@ -1,10 +1,7 @@
 var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    }
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -1065,7 +1062,7 @@ var ECS;
                         //add population to array
                         //console.log(moveDataForSphere.get(sv+ev).num);
                         visual_line_array.set(sv + ev, parseInt(moveDataForSphere.get(sv + ev).num)); //linewidth--vi_li_array(key,num)
-                        console.log("window:" + window.devicePixelRatio);
+                        //console.log("window:" + window.devicePixelRatio);
                         lineArray.set(sv + ev, Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
                     }
                 });
@@ -1078,7 +1075,7 @@ var ECS;
                     maxnumberoflinewidth = nub;
                 if (nub < minnumberoflinewidth)
                     minnumberoflinewidth = nub;
-                //console.log(name+":"+nub);
+                //console.log(name + ":" + nub);
             });
             visual_line_array.forEach(function (name, nub) {
                 if (maxnumberoflinewidth == minnumberoflinewidth)
@@ -1719,8 +1716,8 @@ var ECS;
                         //get loaded json data
                         var cityCode = JSON.parse(_this.entities.get("citycode_entity").components.get("jsondata").data);
                         var data_2008 = JSON.parse(_this.entities.get("entity_year_2008").components.get("jsondata").data);
-                        //var data_2009 = JSON.parse((<ECS.JsonDataComponent>this.entities.get("entity_year_2009").components.get("jsondata")).data);
-                        var data_2010 = JSON.parse(_this.entities.get("entity_year_2009").components.get("jsondata").data);
+                        var data_2009 = JSON.parse(_this.entities.get("entity_year_2009").components.get("jsondata").data);
+                        var data_2010 = JSON.parse(_this.entities.get("entity_year_2010").components.get("jsondata").data);
                         var data_2011 = JSON.parse(_this.entities.get("entity_year_2011").components.get("jsondata").data);
                         var data_2012 = JSON.parse(_this.entities.get("entity_year_2012").components.get("jsondata").data);
                         var data_2013 = JSON.parse(_this.entities.get("entity_year_2013").components.get("jsondata").data);
@@ -1777,7 +1774,7 @@ var ECS;
 var entity_citycode = new ECS.Entity("citycode_entity");
 entity_citycode.addComponent(new ECS.JsonDataComponent("./data/citycode_v2.0.json"));
 //declare urban migration data from json file(Year)
-var year_list = ["2008", "2009"];
+var year_list = ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"];
 var entity_year_list = [];
 for (var index = 0; index < year_list.length; index++) {
     var _year = year_list[index];

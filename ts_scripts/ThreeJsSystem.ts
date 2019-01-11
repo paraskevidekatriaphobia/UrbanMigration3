@@ -24,8 +24,8 @@ module ECS {
         "Toyama", "Ishikawa", "Fukui", "Yamanashi", "Nagano", "Gifu", "Shizuoka", "Aichi", "Mie",
         "Shiga", "Kyoto", "Osaka", "Hyogo", "Nara", "Wakayama", "Tottori", "Shimane", "Okayama", "Hiroshima",
         "Yamaguchi", "Tokushima", "Kagawa", "Ehime", "Kouchi", "Fukuoka", "Saga", "Nagasaki",
-        "Kumamoto", "Ooita", "Miyazaki", "Kagoshima", "Okinawa", 
-        "Saitamashi", "Chibashi", "Tokyotokubetuku", "Yokohamashi","Kawasakishi",
+        "Kumamoto", "Ooita", "Miyazaki", "Kagoshima", "Okinawa",
+        "Saitamashi", "Chibashi", "Tokyotokubetuku", "Yokohamashi", "Kawasakishi",
         "Kyotoshi", "Osakashi", "Sakaishi", "Koubeshi");
 
     let startSelectedList = new Utils.HashSet<string>();
@@ -90,15 +90,15 @@ module ECS {
                 Miyazaki: "45000",
                 Kagoshima: "46000",
                 Okinawa: "47000",
-                Saitamashi:"11100",
-                Chibashi:"12100",
-                Tokyotokubetuku:"13100",
-                Yokohamashi:"14100",
-                Kawasakishi:"14130",
-                Kyotoshi:"26100",
-                Osakashi:"27100",
-                Sakaishi:"27140",
-                Koubeshi:"28100"
+                Saitamashi: "11100",
+                Chibashi: "12100",
+                Tokyotokubetuku: "13100",
+                Yokohamashi: "14100",
+                Kawasakishi: "14130",
+                Kyotoshi: "26100",
+                Osakashi: "27100",
+                Sakaishi: "27140",
+                Koubeshi: "28100"
             };
 
             this.CityEndCodeMap = {
@@ -149,15 +149,15 @@ module ECS {
                 Miyazaki: "046",
                 Kagoshima: "047",
                 Okinawa: "048",
-                Saitamashi:"055",
-                Chibashi:"056",
-                Tokyotokubetuku:"057",
-                Yokohamashi:"058",
-                Kawasakishi:"059",
-                Kyotoshi:"064",
-                Osakashi:"065",
-                Sakaishi:"066",
-                Koubeshi:"067"
+                Saitamashi: "055",
+                Chibashi: "056",
+                Tokyotokubetuku: "057",
+                Yokohamashi: "058",
+                Kawasakishi: "059",
+                Kyotoshi: "064",
+                Osakashi: "065",
+                Sakaishi: "066",
+                Koubeshi: "067"
             }
 
             this.AreaCityCodeMap = {
@@ -169,7 +169,7 @@ module ECS {
                 中国: "Tottori,Shimane,Okayama,Hiroshima,Yamaguchi",
                 四国: "Tokushima,Kagawa,Ehime,Kouchi",
                 九州: "Fukuoka,Saga,Nagasaki,Kumamoto,Ooita,Miyazaki,Kagoshima,Okinawa",
-                大都市_東京圏:"Saitamashi,Chibashi,Tokyotokubetuku,Yokohamashi,Kawasakishi",
+                大都市_東京圏: "Saitamashi,Chibashi,Tokyotokubetuku,Yokohamashi,Kawasakishi",
                 大都市_大阪圏: "Kyotoshi,Osakashi,Sakaishi,Koubeshi",
             }
 
@@ -543,7 +543,7 @@ module ECS {
         }
 
 
-        UpdateLineMesh(){
+        UpdateLineMesh() {
             var lineArray = new Utils.HashSet<any>();
             var moveDataForSphere = this.GlobalParams.get("moveDataForSphere");
             //console.log("/*---------population------------*/")
@@ -560,7 +560,7 @@ module ECS {
                         //add population to array
                         //console.log(moveDataForSphere.get(sv+ev).num);
                         visual_line_array.set(sv + ev, parseInt(moveDataForSphere.get(sv + ev).num)); //linewidth--vi_li_array(key,num)
-                        console.log("window:"+window.devicePixelRatio);
+                        //console.log("window:" + window.devicePixelRatio);
                         lineArray.set(sv + ev, Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
                     }
                 });
@@ -572,7 +572,7 @@ module ECS {
             visual_line_array.forEach((name, nub) => {
                 if (nub > maxnumberoflinewidth) maxnumberoflinewidth = nub;
                 if (nub < minnumberoflinewidth) minnumberoflinewidth = nub;
-                //console.log(name+":"+nub);
+                //console.log(name + ":" + nub);
             });
 
             visual_line_array.forEach((name, nub) => {
@@ -614,19 +614,19 @@ module ECS {
             var gui_start = new dat.GUI();
             var gui_year = new dat.GUI();
 
-      
-            
-            var yearbar = gui_year.add(gui_year_text, 'year', 2008, 2017).listen().onChange((val)=>{
-                var year =  Math.round(val);
+
+
+            var yearbar = gui_year.add(gui_year_text, 'year', 2008, 2017).listen().onChange((val) => {
+                var year = Math.round(val);
                 //console.log(year);
                 this.ListenYearChange(year.toString());
             });
 
-            var osm_map = gui_year.add( gui_year_text,"LoadOSM", false).listen().onChange((val)=>{
+            var osm_map = gui_year.add(gui_year_text, "LoadOSM", false).listen().onChange((val) => {
                 GlobalParams.set("osmSwitch", val);
             });
 
-            
+
 
             var startArea = new Array();
             var endArea = new Array();
@@ -690,10 +690,10 @@ module ECS {
             });
         }
 
-        ListenYearChange(year:string, init:boolean = false){
+        ListenYearChange(year: string, init: boolean = false) {
             //Global Data
             var global_data = (<GlobalComponent>this.GlobalDatas.components.get("global")).data;
-            var moveData = global_data.get("moveData"+year);
+            var moveData = global_data.get("moveData" + year);
 
             //convert gis data to 3d sphere data
             var moveDataForSphere = new Utils.HashSet<ThreeJsMoveEntity>();
@@ -719,7 +719,7 @@ module ECS {
 
             this.GlobalParams.set("moveDataForSphere", moveDataForSphere);
 
-            if(!init)this.UpdateLineMesh();
+            if (!init) this.UpdateLineMesh();
         }
 
         InitThreeJs() {
@@ -828,13 +828,13 @@ module ECS {
 
 
             //import year data
-            this.ListenYearChange("2008",true);
+            this.ListenYearChange("2008", true);
 
             var visualizationMesh = new THREE.Object3D();
             this.GlobalParams.set("visualizationMesh", visualizationMesh);
             rotating.add(visualizationMesh);
             this.GlobalParams.set("rotating", rotating);
-            
+
             // //data visual
             //var lineArray = Utils.BuildSphereDataVizGeometries(moveDataForSphere);
 

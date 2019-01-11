@@ -11,13 +11,13 @@ let entity_citycode = new ECS.Entity("citycode_entity");
 entity_citycode.addComponent(new ECS.JsonDataComponent("./data/citycode_v2.0.json"));
 
 //declare urban migration data from json file(Year)
-let year_list = ["2008","2009"];
+let year_list = ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"];
 let entity_year_list = [];
 
 for (let index = 0; index < year_list.length; index++) {
     const _year = year_list[index];
-    let entity_year = new ECS.Entity("entity_year_"+_year);
-    entity_year.addComponent(new ECS.JsonDataComponent("./data/"+_year+".json"));
+    let entity_year = new ECS.Entity("entity_year_" + _year);
+    entity_year.addComponent(new ECS.JsonDataComponent("./data/" + _year + ".json"));
     entity_year_list.push(entity_year);
 }
 
