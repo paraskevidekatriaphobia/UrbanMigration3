@@ -760,7 +760,8 @@ module ECS {
             scene.add(rotating);
 
             var mapMaterial = new THREE.MeshBasicMaterial({
-                map: new THREE.TextureLoader().load('./images/2_no_clouds_4k.jpg'),
+                //map: new THREE.TextureLoader().load('./images/2_no_clouds_4k.jpg'),
+                map: new THREE.TextureLoader().load('./images/2_no_clouds_16k.jpg'),
                 polygonOffset: true,
                 polygonOffsetFactor: 1,
                 polygonOffsetUnits: 1
