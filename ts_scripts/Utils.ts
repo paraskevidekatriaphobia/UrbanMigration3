@@ -138,15 +138,15 @@ module Utils {
 
 
     //visual selected data
-    export function BuildShpereDataVizGeometry(MoveDataHastSet:any,guid:string){
-        
+    export function BuildShpereDataVizGeometry(MoveDataHastSet: any, guid: string) {
+
 
         var data = MoveDataHastSet.get(guid);
         //console.log(data);
         var startPos = new THREE.Vector3(data.startPos[0], data.startPos[1], data.startPos[2]);
         var endPos = new THREE.Vector3(data.endPos[0], data.endPos[1], data.endPos[2]);
 
-        var randomHeight = randomInt(500,1000);
+        var randomHeight = randomInt(500, 1000);
         var line = ConnectionLineGeometry(startPos, endPos, 750);
         return line;
     }
@@ -160,7 +160,7 @@ module Utils {
             var startPos = new THREE.Vector3(m.startPos[0], m.startPos[1], m.startPos[2]);
             var endPos = new THREE.Vector3(m.endPos[0], m.endPos[1], m.endPos[2]);
 
-            var randomHeight = randomInt(500,1000);
+            var randomHeight = randomInt(500, 1000);
             var line = ConnectionLineGeometry(startPos, endPos, randomHeight);
             lineArray.push(line);
         }

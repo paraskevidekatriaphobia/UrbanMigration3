@@ -14,11 +14,20 @@ module ECS {
     }
 
     export class JsonDataComponent extends Component {
-        data: string
-        file_path: string
-        constructor(path:string, value: string = "") {
+        data: string;
+        file_path: string;
+        constructor(path: string, value: string = "") {
             super("jsondata");
             this.data = value;
+            this.file_path = path;
+        }
+    }
+
+    export class TextureComponent extends Component {
+        texture: any;
+        file_path: string;
+        constructor(path: string) {
+            super("texture");
             this.file_path = path;
         }
     }
@@ -27,7 +36,7 @@ module ECS {
         id: string;
         lon: number;
         lat: number;
-        constructor(id: string ,lon: number,lat: number ) {
+        constructor(id: string, lon: number, lat: number) {
             super("japancity");
             this.id = id;
             this.lon = lon;
@@ -43,8 +52,8 @@ module ECS {
         a_lon: number;
         a_lat: number;
 
-        num:number;
-        constructor(b_id: string ,b_lon: number,b_lat: number,a_id: string ,a_lon: number,a_lat: number ,num:number ) {
+        num: number;
+        constructor(b_id: string, b_lon: number, b_lat: number, a_id: string, a_lon: number, a_lat: number, num: number) {
             super("humanmove");
             this.b_id = b_id;
             this.b_lon = b_lon;

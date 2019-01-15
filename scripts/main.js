@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -76,6 +76,16 @@ var ECS;
         return JsonDataComponent;
     }(Component));
     ECS.JsonDataComponent = JsonDataComponent;
+    var TextureComponent = /** @class */ (function (_super) {
+        __extends(TextureComponent, _super);
+        function TextureComponent(path) {
+            var _this = _super.call(this, "texture") || this;
+            _this.file_path = path;
+            return _this;
+        }
+        return TextureComponent;
+    }(Component));
+    ECS.TextureComponent = TextureComponent;
     var JapanCityDataComponent = /** @class */ (function (_super) {
         __extends(JapanCityDataComponent, _super);
         function JapanCityDataComponent(id, lon, lat) {
@@ -595,8 +605,6 @@ var ECS;
 /// <reference path="./Utils.ts" />
 var ECS;
 (function (ECS) {
-    // declare var d3Graphs:any;
-    var citylistname = new Array("Hokaido", "Aomori", "Iwate", "Miyagi", "Akita", "Yamakata", "Fukushima", "Ibaraki", "Tochigi", "Gunma", "Saitama", "Chiba", "Tokyo", "Kanagawa", "Niigata", "Toyama", "Ishikawa", "Fukui", "Yamanashi", "Nagano", "Gifu", "Shizuoka", "Aichi", "Mie", "Shiga", "Kyoto", "Osaka", "Hyogo", "Nara", "Wakayama", "Tottori", "Shimane", "Okayama", "Hiroshima", "Yamaguchi", "Tokushima", "Kagawa", "Ehime", "Kouchi", "Fukuoka", "Saga", "Nagasaki", "Kumamoto", "Ooita", "Miyazaki", "Kagoshima", "Okinawa", "Saitamashi", "Chibashi", "Tokyotokubetuku", "Yokohamashi", "Kawasakishi", "Kyotoshi", "Osakashi", "Sakaishi", "Koubeshi");
     var startSelectedList = new Utils.HashSet();
     var endSelectedList = new Utils.HashSet();
     var ThreeJsSystem = /** @class */ (function (_super) {
@@ -616,183 +624,6 @@ var ECS;
                 });
             };
             _this.GlobalParams = new Utils.HashSet();
-            _this.CityStartCodeMap = {
-                Hokaido: "01000",
-                Aomori: "02000",
-                Iwate: "03000",
-                Miyagi: "04000",
-                Akita: "05000",
-                Yamakata: "06000",
-                Fukushima: "07000",
-                Ibaraki: "08000",
-                Tochigi: "09000",
-                Gunma: "10000",
-                Saitama: "11000",
-                Chiba: "12000",
-                Tokyo: "13000",
-                Kanagawa: "14000",
-                Niigata: "15000",
-                Toyama: "16000",
-                Ishikawa: "17000",
-                Fukui: "18000",
-                Yamanashi: "19000",
-                Nagano: "20000",
-                Gifu: "21000",
-                Shizuoka: "22000",
-                Aichi: "23000",
-                Mie: "24000",
-                Shiga: "25000",
-                Kyoto: "26000",
-                Osaka: "27000",
-                Hyogo: "28000",
-                Nara: "29000",
-                Wakayama: "30000",
-                Tottori: "31000",
-                Shimane: "32000",
-                Okayama: "33000",
-                Hiroshima: "34000",
-                Yamaguchi: "35000",
-                Tokushima: "36000",
-                Kagawa: "37000",
-                Ehime: "38000",
-                Kouchi: "39000",
-                Fukuoka: "40000",
-                Saga: "41000",
-                Nagasaki: "42000",
-                Kumamoto: "43000",
-                Ooita: "44000",
-                Miyazaki: "45000",
-                Kagoshima: "46000",
-                Okinawa: "47000",
-                Saitamashi: "11100",
-                Chibashi: "12100",
-                Tokyotokubetuku: "13100",
-                Yokohamashi: "14100",
-                Kawasakishi: "14130",
-                Kyotoshi: "26100",
-                Osakashi: "27100",
-                Sakaishi: "27140",
-                Koubeshi: "28100"
-            };
-            _this.CityEndCodeMap = {
-                Hokaido: "002",
-                Aomori: "003",
-                Iwate: "004",
-                Miyagi: "005",
-                Akita: "006",
-                Yamakata: "007",
-                Fukushima: "008",
-                Ibaraki: "009",
-                Tochigi: "010",
-                Gunma: "011",
-                Saitama: "012",
-                Chiba: "013",
-                Tokyo: "014",
-                Kanagawa: "015",
-                Niigata: "016",
-                Toyama: "017",
-                Ishikawa: "018",
-                Fukui: "019",
-                Yamanashi: "020",
-                Nagano: "021",
-                Gifu: "022",
-                Shizuoka: "023",
-                Aichi: "024",
-                Mie: "025",
-                Shiga: "026",
-                Kyoto: "027",
-                Osaka: "028",
-                Hyogo: "029",
-                Nara: "030",
-                Wakayama: "031",
-                Tottori: "032",
-                Shimane: "033",
-                Okayama: "034",
-                Hiroshima: "035",
-                Yamaguchi: "036",
-                Tokushima: "037",
-                Kagawa: "038",
-                Ehime: "039",
-                Kouchi: "040",
-                Fukuoka: "041",
-                Saga: "042",
-                Nagasaki: "043",
-                Kumamoto: "044",
-                Ooita: "045",
-                Miyazaki: "046",
-                Kagoshima: "047",
-                Okinawa: "048",
-                Saitamashi: "055",
-                Chibashi: "056",
-                Tokyotokubetuku: "057",
-                Yokohamashi: "058",
-                Kawasakishi: "059",
-                Kyotoshi: "064",
-                Osakashi: "065",
-                Sakaishi: "066",
-                Koubeshi: "067"
-            };
-            _this.AreaCityCodeMap = {
-                北海道: "Hokaido",
-                東北: "Aomori,Iwate,Miyagi,Akita,Yamakata,Fukushima",
-                関東: "Ibaraki,Tochigi,Gunma,Saitama,Chiba,Tokyo,Kanagawa",
-                中部: "Niigata,Toyama,Ishikawa,Fukui,Yamanashi,Nagano,Gifu,Shizuoka,Aichi,Mie",
-                関西: "Shiga,Kyoto,Osaka,Hyogo,Nara,Wakayama",
-                中国: "Tottori,Shimane,Okayama,Hiroshima,Yamaguchi",
-                四国: "Tokushima,Kagawa,Ehime,Kouchi",
-                九州: "Fukuoka,Saga,Nagasaki,Kumamoto,Ooita,Miyazaki,Kagoshima,Okinawa",
-                大都市_東京圏: "Saitamashi,Chibashi,Tokyotokubetuku,Yokohamashi,Kawasakishi",
-                大都市_大阪圏: "Kyotoshi,Osakashi,Sakaishi,Koubeshi"
-            };
-            _this.CityShowMap = {
-                Hokaido: true,
-                Aomori: true,
-                Iwate: true,
-                Miyagi: true,
-                Akita: true,
-                Yamakata: true,
-                Fukushima: true,
-                Ibaraki: true,
-                Tochigi: true,
-                Gunma: true,
-                Saitama: true,
-                Chiba: true,
-                Tokyo: false,
-                Kanagawa: true,
-                Niigata: true,
-                Toyama: true,
-                Ishikawa: true,
-                Fukui: true,
-                Yamanashi: true,
-                Nagano: true,
-                Gifu: true,
-                Shizuoka: true,
-                Aichi: true,
-                Mie: true,
-                Shiga: true,
-                Kyoto: true,
-                Osaka: true,
-                Hyogo: true,
-                Nara: true,
-                Wakayama: true,
-                Tottori: true,
-                Shimane: true,
-                Okayama: true,
-                Hiroshima: true,
-                Yamaguchi: true,
-                Tokushima: true,
-                Kagawa: true,
-                Ehime: true,
-                Kouchi: true,
-                Fukuoka: true,
-                Saga: true,
-                Nagasaki: true,
-                Kumamoto: true,
-                Ooita: true,
-                Miyazaki: true,
-                Kagoshima: true,
-                Okinawa: true
-            };
             return _this;
         }
         ThreeJsSystem.prototype.wrap = function (value, min, rangeSize) {
@@ -1089,6 +920,10 @@ var ECS;
             //console.log("sum=" + sumnumberoflinewidth + ";maxnub=" + maxnumberoflinewidth + ";minnub=" + minnumberoflinewidth);
             this.VisualizationLine(lineArray, visual_line_array);
         };
+        ThreeJsSystem.prototype.initPreloadedData = function () {
+            var preloaded_data = this.GlobalDatas.components.get("global").data;
+            this.GlobalParams.set("preloaded_data", preloaded_data);
+        };
         ThreeJsSystem.prototype.initUi = function () {
             var _this = this;
             //init user UI
@@ -1098,14 +933,15 @@ var ECS;
                 'year': 2008,
                 LoadOSM: osmSwitch
             };
-            //********** */
+            var preloaded_data = GlobalParams.get("preloaded_data");
+            var CityNames = preloaded_data.get("citynames");
             var startParam = new Object();
-            for (var i = 0; i < citylistname.length; i++) {
-                startParam[citylistname[i]] = false;
+            for (var i = 0; i < CityNames.length; i++) {
+                startParam[CityNames[i]] = false;
             }
             var endParam = new Object();
-            for (var i = 0; i < citylistname.length; i++) {
-                endParam[citylistname[i]] = false;
+            for (var i = 0; i < CityNames.length; i++) {
+                endParam[CityNames[i]] = false;
             }
             //GlobalParams.set("earthParam", earthParam);
             //GUI
@@ -1122,14 +958,17 @@ var ECS;
             });
             var startArea = new Array();
             var endArea = new Array();
+            var AreaCityCodeMap = preloaded_data.get("areacitycodemap");
+            var CityStartCodeMap = preloaded_data.get("citystartcodemap");
+            var CityEndCodeMap = preloaded_data.get("cityendcodemap");
             //init ui and data through mapping table
-            Object.keys(this.AreaCityCodeMap).forEach(function (area_name) {
+            Object.keys(AreaCityCodeMap).forEach(function (area_name) {
                 var StartLayer = gui_start.addFolder(area_name);
                 var EndLayer = gui_end.addFolder(area_name);
-                var AreaList = _this.AreaCityCodeMap[area_name].split(',');
+                var AreaList = AreaCityCodeMap[area_name].split(',');
                 AreaList.forEach(function (city_name) {
-                    var ceid = _this.CityEndCodeMap[city_name];
-                    var csid = _this.CityStartCodeMap[city_name];
+                    var ceid = CityEndCodeMap[city_name];
+                    var csid = CityStartCodeMap[city_name];
                     //console.log(cid);
                     var current_start_city = new Object();
                     var current_end_city = new Object();
@@ -1172,9 +1011,9 @@ var ECS;
         };
         ThreeJsSystem.prototype.ListenYearChange = function (year, init) {
             if (init === void 0) { init = false; }
-            //Global Data
-            var global_data = this.GlobalDatas.components.get("global").data;
-            var moveData = global_data.get("moveData" + year);
+            var preloaded_data = this.GlobalParams.get("preloaded_data");
+            var moveData = preloaded_data.get("moveData" + year);
+            var CityEndCodeMap = preloaded_data.get("cityendcodemap");
             //convert gis data to 3d sphere data
             var moveDataForSphere = new Utils.HashSet();
             //load data from dataset
@@ -1182,8 +1021,8 @@ var ECS;
                 var m = moveData_1[_i];
                 var current_humanmove = m.components.get("humanmove");
                 //console.log("b:" + (<HumanMovementDataComponent>m.components.get("humanmove")).b_id + ",a:" + (<HumanMovementDataComponent>m.components.get("humanmove")).a_id);
-                for (var key in this.CityEndCodeMap) {
-                    if (this.CityEndCodeMap[key] == current_humanmove.a_id) {
+                for (var key in CityEndCodeMap) {
+                    if (CityEndCodeMap[key] == current_humanmove.a_id) {
                         var start_lon = current_humanmove.b_lon;
                         var start_lat = current_humanmove.b_lat;
                         var end_lon = current_humanmove.a_lon;
@@ -1200,6 +1039,7 @@ var ECS;
                 this.UpdateLineMesh();
         };
         ThreeJsSystem.prototype.InitThreeJs = function () {
+            var preloaded_data = this.GlobalParams.get("preloaded_data");
             var glContainer = document.getElementById('glContainer');
             var dpr = window.devicePixelRatio ? window.devicePixelRatio : 1;
             this.GlobalParams.set("dpr", dpr);
@@ -1228,9 +1068,10 @@ var ECS;
             scene.add(light2);
             var rotating = new THREE.Object3D();
             scene.add(rotating);
+            //preload 16k data
+            var earth_texture = preloaded_data.get("earthtexture");
             var mapMaterial = new THREE.MeshBasicMaterial({
-                //map: new THREE.TextureLoader().load('./images/2_no_clouds_4k.jpg'),
-                map: new THREE.TextureLoader().load('./images/2_no_clouds_16k.jpg'),
+                map: earth_texture,
                 polygonOffset: true,
                 polygonOffsetFactor: 1,
                 polygonOffsetUnits: 1
@@ -1412,6 +1253,7 @@ var ECS;
         };
         ThreeJsSystem.prototype.Execute = function () {
             _super.prototype.Execute.call(this);
+            this.initPreloadedData();
             this.InitThreeJs();
             this.initUi();
             this.animate();
@@ -1698,13 +1540,66 @@ var ECS;
                 //console.log("before cood:"+before_data.lon+","+before_data.lat);
                 //console.log("after cood:"+after_data.lon+","+after_data.lat);
             }
-            // for(let m of MovementArray){
-            //     console.log("b:"+(<HumanMovementDataComponent>m.components.get("humanmove")).b_id+",a:"+(<HumanMovementDataComponent>m.components.get("humanmove")).a_id);
-            // }
             ConflictList.forEach(function (f) {
-                console.log("please check city code!need code:" + f);
+                //console.log("please check city code!need code:" + f);
             });
             return MovementArray;
+        };
+        LoadingSystem.prototype.ExecuteSystem = function () {
+            //get loaded json data
+            var cityCode = JSON.parse(this.entities.get("citycode_entity").components.get("jsondata").data);
+            var cityMapping = JSON.parse(this.entities.get("citymapping_entity").components.get("jsondata").data);
+            var data_2008 = JSON.parse(this.entities.get("entity_year_2008").components.get("jsondata").data);
+            var data_2009 = JSON.parse(this.entities.get("entity_year_2009").components.get("jsondata").data);
+            var data_2010 = JSON.parse(this.entities.get("entity_year_2010").components.get("jsondata").data);
+            var data_2011 = JSON.parse(this.entities.get("entity_year_2011").components.get("jsondata").data);
+            var data_2012 = JSON.parse(this.entities.get("entity_year_2012").components.get("jsondata").data);
+            var data_2013 = JSON.parse(this.entities.get("entity_year_2013").components.get("jsondata").data);
+            var data_2014 = JSON.parse(this.entities.get("entity_year_2014").components.get("jsondata").data);
+            var data_2015 = JSON.parse(this.entities.get("entity_year_2015").components.get("jsondata").data);
+            var data_2016 = JSON.parse(this.entities.get("entity_year_2016").components.get("jsondata").data);
+            var data_2017 = JSON.parse(this.entities.get("entity_year_2017").components.get("jsondata").data);
+            //get loaded texture data
+            var earth_texture = this.entities.get("earthtexture_entity").components.get("texture").texture;
+            //init migration data by year
+            var moveData_2008 = this.InitDataStructure(data_2008, cityCode);
+            var moveData_2009 = this.InitDataStructure(data_2009, cityCode);
+            var moveData_2010 = this.InitDataStructure(data_2010, cityCode);
+            var moveData_2011 = this.InitDataStructure(data_2011, cityCode);
+            var moveData_2012 = this.InitDataStructure(data_2012, cityCode);
+            var moveData_2013 = this.InitDataStructure(data_2013, cityCode);
+            var moveData_2014 = this.InitDataStructure(data_2014, cityCode);
+            var moveData_2015 = this.InitDataStructure(data_2015, cityCode);
+            var moveData_2016 = this.InitDataStructure(data_2016, cityCode);
+            var moveData_2017 = this.InitDataStructure(data_2017, cityCode);
+            //set migration data to gobal variable
+            var entity_GlobalData = new ECS.Entity("global_entity");
+            var global_data = new Utils.HashSet();
+            global_data.set("moveData2008", moveData_2008);
+            global_data.set("moveData2009", moveData_2009);
+            global_data.set("moveData2010", moveData_2010);
+            global_data.set("moveData2011", moveData_2011);
+            global_data.set("moveData2012", moveData_2012);
+            global_data.set("moveData2013", moveData_2013);
+            global_data.set("moveData2014", moveData_2014);
+            global_data.set("moveData2015", moveData_2015);
+            global_data.set("moveData2016", moveData_2016);
+            global_data.set("moveData2017", moveData_2017);
+            global_data.set("citynames", cityMapping.CityNames.Value);
+            global_data.set("citystartcodemap", cityMapping.CityStartCodeMap.Value);
+            global_data.set("cityendcodemap", cityMapping.CityEndCodeMap.Value);
+            global_data.set("areacitycodemap", cityMapping.AreaCityCodeMap.Value);
+            global_data.set("cityshowmap", cityMapping.CityShowMap.Value);
+            global_data.set("earthtexture", earth_texture);
+            entity_GlobalData.addComponent(new ECS.GlobalComponent(global_data));
+            //init system
+            var threejs_system = new ECS.ThreeJsSystem();
+            var eventlistener_system = new ECS.EventListenerSystem();
+            var other_systems = new Utils.HashSet();
+            other_systems.set(threejs_system.name, threejs_system);
+            other_systems.set(eventlistener_system.name, eventlistener_system);
+            var main_system = new ECS.MainSystem(entity_GlobalData, other_systems);
+            main_system.Execute();
         };
         LoadingSystem.prototype.Execute = function () {
             var _this = this;
@@ -1712,58 +1607,36 @@ var ECS;
             var ENTITY_NUMBER = this.entities.len();
             var data_load_progress = 0;
             this.entities.forEach(function (k, v) {
+                //load entities' json file
                 var json_data = v.components.get("jsondata");
-                Utils.loadData(json_data.file_path, json_data, function () {
-                    data_load_progress += 1;
-                    //if all of the json data were loaded, execute main system
-                    if (data_load_progress == ENTITY_NUMBER) {
-                        //get loaded json data
-                        var cityCode = JSON.parse(_this.entities.get("citycode_entity").components.get("jsondata").data);
-                        var data_2008 = JSON.parse(_this.entities.get("entity_year_2008").components.get("jsondata").data);
-                        var data_2009 = JSON.parse(_this.entities.get("entity_year_2009").components.get("jsondata").data);
-                        var data_2010 = JSON.parse(_this.entities.get("entity_year_2010").components.get("jsondata").data);
-                        var data_2011 = JSON.parse(_this.entities.get("entity_year_2011").components.get("jsondata").data);
-                        var data_2012 = JSON.parse(_this.entities.get("entity_year_2012").components.get("jsondata").data);
-                        var data_2013 = JSON.parse(_this.entities.get("entity_year_2013").components.get("jsondata").data);
-                        var data_2014 = JSON.parse(_this.entities.get("entity_year_2014").components.get("jsondata").data);
-                        var data_2015 = JSON.parse(_this.entities.get("entity_year_2015").components.get("jsondata").data);
-                        var data_2016 = JSON.parse(_this.entities.get("entity_year_2016").components.get("jsondata").data);
-                        var data_2017 = JSON.parse(_this.entities.get("entity_year_2017").components.get("jsondata").data);
-                        //init migration data by year
-                        var moveData_2008 = _this.InitDataStructure(data_2008, cityCode);
-                        var moveData_2009 = _this.InitDataStructure(data_2009, cityCode);
-                        var moveData_2010 = _this.InitDataStructure(data_2010, cityCode);
-                        var moveData_2011 = _this.InitDataStructure(data_2011, cityCode);
-                        var moveData_2012 = _this.InitDataStructure(data_2012, cityCode);
-                        var moveData_2013 = _this.InitDataStructure(data_2013, cityCode);
-                        var moveData_2014 = _this.InitDataStructure(data_2014, cityCode);
-                        var moveData_2015 = _this.InitDataStructure(data_2015, cityCode);
-                        var moveData_2016 = _this.InitDataStructure(data_2016, cityCode);
-                        var moveData_2017 = _this.InitDataStructure(data_2017, cityCode);
-                        //set migration data to gobal variable
-                        var entity_GlobalData = new ECS.Entity("global_entity");
-                        var global_data = new Utils.HashSet();
-                        global_data.set("moveData2008", moveData_2008);
-                        global_data.set("moveData2009", moveData_2009);
-                        global_data.set("moveData2010", moveData_2010);
-                        global_data.set("moveData2011", moveData_2011);
-                        global_data.set("moveData2012", moveData_2012);
-                        global_data.set("moveData2013", moveData_2013);
-                        global_data.set("moveData2014", moveData_2014);
-                        global_data.set("moveData2015", moveData_2015);
-                        global_data.set("moveData2016", moveData_2016);
-                        global_data.set("moveData2017", moveData_2017);
-                        entity_GlobalData.addComponent(new ECS.GlobalComponent(global_data));
-                        //init system
-                        var threejs_system = new ECS.ThreeJsSystem();
-                        var eventlistener_system = new ECS.EventListenerSystem();
-                        var other_systems = new Utils.HashSet();
-                        other_systems.set(threejs_system.name, threejs_system);
-                        other_systems.set(eventlistener_system.name, eventlistener_system);
-                        var main_system = new ECS.MainSystem(entity_GlobalData, other_systems);
-                        main_system.Execute();
-                    }
-                });
+                if (json_data != undefined) {
+                    Utils.loadData(json_data.file_path, json_data, function () {
+                        data_load_progress += 1;
+                        //if all of the json data were loaded, execute main system
+                        if (data_load_progress == ENTITY_NUMBER) {
+                            _this.ExecuteSystem();
+                        }
+                    });
+                }
+                //load texture 
+                var texture_data = v.components.get("texture");
+                if (texture_data != undefined) {
+                    var texture_loader = new THREE.TextureLoader();
+                    texture_loader.load(texture_data.file_path, function (texture) {
+                        texture_data.texture = texture;
+                        data_load_progress += 1;
+                        //if all of the json data were loaded, execute main system
+                        if (data_load_progress == ENTITY_NUMBER) {
+                            _this.ExecuteSystem();
+                        }
+                    }, 
+                    // onProgress callback currently not supported
+                    undefined, 
+                    // onError callback
+                    function (err) {
+                        console.error('Loading Texture Error!');
+                    });
+                }
             });
         };
         return LoadingSystem;
@@ -1777,6 +1650,12 @@ var ECS;
 //declare entities
 var entity_citycode = new ECS.Entity("citycode_entity");
 entity_citycode.addComponent(new ECS.JsonDataComponent("./data/citycode_v2.0.json"));
+//city name list
+var entity_citymapping = new ECS.Entity("citymapping_entity");
+entity_citymapping.addComponent(new ECS.JsonDataComponent("./data/citymapping.json"));
+//texture 
+var entity_earthtexture = new ECS.Entity("earthtexture_entity");
+entity_earthtexture.addComponent(new ECS.TextureComponent("./images/2_no_clouds_16k.jpg"));
 //declare urban migration data from json file(Year)
 var year_list = ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"];
 var entity_year_list = [];
@@ -1788,6 +1667,8 @@ for (var index = 0; index < year_list.length; index++) {
 }
 var entities = new Utils.HashSet();
 entities.set(entity_citycode.name, entity_citycode);
+entities.set(entity_citymapping.name, entity_citymapping);
+entities.set(entity_earthtexture.name, entity_earthtexture);
 //add year entity data
 for (var index = 0; index < entity_year_list.length; index++) {
     var entity_year_data = entity_year_list[index];

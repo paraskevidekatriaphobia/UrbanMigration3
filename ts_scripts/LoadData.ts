@@ -23,7 +23,7 @@ module Utils {
 
     var yearIndexLookup = {};
 
-    export function getYearIndexlookUp(){
+    export function getYearIndexlookUp() {
         return yearIndexLookup;
     }
 
@@ -143,24 +143,24 @@ module Utils {
         return curveGeometry;
     }
 
-    function landingLatLon(lat:any, lon:any, bearing:any, distance:any) {
+    function landingLatLon(lat: any, lon: any, bearing: any, distance: any) {
         var a = 6378137.06; // radius at equator
-    
+
         var phi1 = lat * Math.PI / 180;
         var L1 = lon * Math.PI / 180;
         var alpha1 = bearing * Math.PI / 180;
         var delta = distance * 1000 / a;
-    
+
         var phi2 = Math.asin(Math.sin(phi1) * Math.cos(delta) +
             Math.cos(phi1) * Math.sin(delta) * Math.cos(alpha1));
         var dL = Math.atan2(Math.sin(alpha1) * Math.sin(delta) * Math.cos(phi1),
             Math.cos(delta) - Math.sin(phi1) * Math.sin(phi2));
         var L2 = (L1 + dL + 3 * Math.PI) % (2 * Math.PI) - Math.PI;
-    
-        return {'lat': phi2 * 180 / Math.PI, 'lon': L2 * 180 / Math.PI};
+
+        return { 'lat': phi2 * 180 / Math.PI, 'lon': L2 * 180 / Math.PI };
     }
 
-    export function buildDataVizGeometries(linearData: any,missileLookup:any,facilityData:any) {
+    export function buildDataVizGeometries(linearData: any, missileLookup: any, facilityData: any) {
 
         var rad = 100;
         var loadLayer = document.getElementById('loading');
