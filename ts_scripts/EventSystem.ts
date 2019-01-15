@@ -8,7 +8,7 @@
 /// <reference path="./Utils.ts" />
 module ECS {
     declare var THREE: any;
-    
+
     export class EventListenerSystem extends System {
         GlobalParams: Utils.HashSet<any>;
         constructor() {

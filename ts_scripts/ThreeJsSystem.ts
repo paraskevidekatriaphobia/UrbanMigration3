@@ -17,212 +17,16 @@ module ECS {
     declare var Math: any;
     declare var Stats: any;
     declare var dat: any;
-    // declare var d3Graphs:any;
-
-    let citylistname: string[] = new Array("Hokaido", "Aomori", "Iwate", "Miyagi", "Akita",
-        "Yamakata", "Fukushima", "Ibaraki", "Tochigi", "Gunma", "Saitama", "Chiba", "Tokyo", "Kanagawa", "Niigata",
-        "Toyama", "Ishikawa", "Fukui", "Yamanashi", "Nagano", "Gifu", "Shizuoka", "Aichi", "Mie",
-        "Shiga", "Kyoto", "Osaka", "Hyogo", "Nara", "Wakayama", "Tottori", "Shimane", "Okayama", "Hiroshima",
-        "Yamaguchi", "Tokushima", "Kagawa", "Ehime", "Kouchi", "Fukuoka", "Saga", "Nagasaki",
-        "Kumamoto", "Ooita", "Miyazaki", "Kagoshima", "Okinawa",
-        "Saitamashi", "Chibashi", "Tokyotokubetuku", "Yokohamashi", "Kawasakishi",
-        "Kyotoshi", "Osakashi", "Sakaishi", "Koubeshi");
 
     let startSelectedList = new Utils.HashSet<string>();
     let endSelectedList = new Utils.HashSet<string>();
 
     export class ThreeJsSystem extends System {
         GlobalParams: Utils.HashSet<any>;
-        CityEndCodeMap: any;
-        CityShowMap: any;
-        AreaCityCodeMap: any;
-        CityStartCodeMap: any;
-        StartEndCodeMap: any;
 
         constructor() {
             super("threejs");
             this.GlobalParams = new Utils.HashSet<any>();
-            this.CityStartCodeMap = {
-                Hokaido: "01000",
-                Aomori: "02000",
-                Iwate: "03000",
-                Miyagi: "04000",
-                Akita: "05000",
-                Yamakata: "06000",
-                Fukushima: "07000",
-                Ibaraki: "08000",
-                Tochigi: "09000",
-                Gunma: "10000",
-                Saitama: "11000",
-                Chiba: "12000",
-                Tokyo: "13000",
-                Kanagawa: "14000",
-                Niigata: "15000",
-                Toyama: "16000",
-                Ishikawa: "17000",
-                Fukui: "18000",
-                Yamanashi: "19000",
-                Nagano: "20000",
-                Gifu: "21000",
-                Shizuoka: "22000",
-                Aichi: "23000",
-                Mie: "24000",
-                Shiga: "25000",
-                Kyoto: "26000",
-                Osaka: "27000",
-                Hyogo: "28000",
-                Nara: "29000",
-                Wakayama: "30000",
-                Tottori: "31000",
-                Shimane: "32000",
-                Okayama: "33000",
-                Hiroshima: "34000",
-                Yamaguchi: "35000",
-                Tokushima: "36000",
-                Kagawa: "37000",
-                Ehime: "38000",
-                Kouchi: "39000",
-                Fukuoka: "40000",
-                Saga: "41000",
-                Nagasaki: "42000",
-                Kumamoto: "43000",
-                Ooita: "44000",
-                Miyazaki: "45000",
-                Kagoshima: "46000",
-                Okinawa: "47000",
-                Saitamashi: "11100",
-                Chibashi: "12100",
-                Tokyotokubetuku: "13100",
-                Yokohamashi: "14100",
-                Kawasakishi: "14130",
-                Kyotoshi: "26100",
-                Osakashi: "27100",
-                Sakaishi: "27140",
-                Koubeshi: "28100"
-            };
-
-            this.CityEndCodeMap = {
-                Hokaido: "002",
-                Aomori: "003",
-                Iwate: "004",
-                Miyagi: "005",
-                Akita: "006",
-                Yamakata: "007",
-                Fukushima: "008",
-                Ibaraki: "009",
-                Tochigi: "010",
-                Gunma: "011",
-                Saitama: "012",
-                Chiba: "013",
-                Tokyo: "014",
-                Kanagawa: "015",
-                Niigata: "016",
-                Toyama: "017",
-                Ishikawa: "018",
-                Fukui: "019",
-                Yamanashi: "020",
-                Nagano: "021",
-                Gifu: "022",
-                Shizuoka: "023",
-                Aichi: "024",
-                Mie: "025",
-                Shiga: "026",
-                Kyoto: "027",
-                Osaka: "028",
-                Hyogo: "029",
-                Nara: "030",
-                Wakayama: "031",
-                Tottori: "032",
-                Shimane: "033",
-                Okayama: "034",
-                Hiroshima: "035",
-                Yamaguchi: "036",
-                Tokushima: "037",
-                Kagawa: "038",
-                Ehime: "039",
-                Kouchi: "040",
-                Fukuoka: "041",
-                Saga: "042",
-                Nagasaki: "043",
-                Kumamoto: "044",
-                Ooita: "045",
-                Miyazaki: "046",
-                Kagoshima: "047",
-                Okinawa: "048",
-                Saitamashi: "055",
-                Chibashi: "056",
-                Tokyotokubetuku: "057",
-                Yokohamashi: "058",
-                Kawasakishi: "059",
-                Kyotoshi: "064",
-                Osakashi: "065",
-                Sakaishi: "066",
-                Koubeshi: "067"
-            }
-
-            this.AreaCityCodeMap = {
-                北海道: "Hokaido",
-                東北: "Aomori,Iwate,Miyagi,Akita,Yamakata,Fukushima",
-                関東: "Ibaraki,Tochigi,Gunma,Saitama,Chiba,Tokyo,Kanagawa",
-                中部: "Niigata,Toyama,Ishikawa,Fukui,Yamanashi,Nagano,Gifu,Shizuoka,Aichi,Mie",
-                関西: "Shiga,Kyoto,Osaka,Hyogo,Nara,Wakayama",
-                中国: "Tottori,Shimane,Okayama,Hiroshima,Yamaguchi",
-                四国: "Tokushima,Kagawa,Ehime,Kouchi",
-                九州: "Fukuoka,Saga,Nagasaki,Kumamoto,Ooita,Miyazaki,Kagoshima,Okinawa",
-                大都市_東京圏: "Saitamashi,Chibashi,Tokyotokubetuku,Yokohamashi,Kawasakishi",
-                大都市_大阪圏: "Kyotoshi,Osakashi,Sakaishi,Koubeshi",
-            }
-
-            this.CityShowMap = {
-                Hokaido: true,
-                Aomori: true,
-                Iwate: true,
-                Miyagi: true,
-                Akita: true,
-                Yamakata: true,
-                Fukushima: true,
-                Ibaraki: true,
-                Tochigi: true,
-                Gunma: true,
-                Saitama: true,
-                Chiba: true,
-                Tokyo: false,
-                Kanagawa: true,
-                Niigata: true,
-                Toyama: true,
-                Ishikawa: true,
-                Fukui: true,
-                Yamanashi: true,
-                Nagano: true,
-                Gifu: true,
-                Shizuoka: true,
-                Aichi: true,
-                Mie: true,
-                Shiga: true,
-                Kyoto: true,
-                Osaka: true,
-                Hyogo: true,
-                Nara: true,
-                Wakayama: true,
-                Tottori: true,
-                Shimane: true,
-                Okayama: true,
-                Hiroshima: true,
-                Yamaguchi: true,
-                Tokushima: true,
-                Kagawa: true,
-                Ehime: true,
-                Kouchi: true,
-                Fukuoka: true,
-                Saga: true,
-                Nagasaki: true,
-                Kumamoto: true,
-                Ooita: true,
-                Miyazaki: true,
-                Kagoshima: true,
-                Okinawa: true
-            };
-
         }
 
         wrap(value: any, min: any, rangeSize: any) {
@@ -583,6 +387,11 @@ module ECS {
             this.VisualizationLine(lineArray, visual_line_array);
         }
 
+        initPreloadedData() {
+            let preloaded_data = (<GlobalComponent>this.GlobalDatas.components.get("global")).data;
+            this.GlobalParams.set("preloaded_data", preloaded_data);
+        }
+
         initUi() {
 
             //init user UI
@@ -593,15 +402,16 @@ module ECS {
                 LoadOSM: osmSwitch
             }
 
-            //********** */
+            let preloaded_data = GlobalParams.get("preloaded_data");
+            let CityNames = preloaded_data.get("citynames");
             var startParam = new Object();
-            for (var i = 0; i < citylistname.length; i++) {
-                startParam[citylistname[i]] = false;
+            for (var i = 0; i < CityNames.length; i++) {
+                startParam[CityNames[i]] = false;
             }
 
             var endParam = new Object();
-            for (var i = 0; i < citylistname.length; i++) {
-                endParam[citylistname[i]] = false;
+            for (var i = 0; i < CityNames.length; i++) {
+                endParam[CityNames[i]] = false;
             }
 
             //GlobalParams.set("earthParam", earthParam);
@@ -632,15 +442,18 @@ module ECS {
             var endArea = new Array();
 
 
+            let AreaCityCodeMap = preloaded_data.get("areacitycodemap");
+            let CityStartCodeMap = preloaded_data.get("citystartcodemap");
+            let CityEndCodeMap = preloaded_data.get("cityendcodemap");
             //init ui and data through mapping table
-            Object.keys(this.AreaCityCodeMap).forEach((area_name) => {
+            Object.keys(AreaCityCodeMap).forEach((area_name) => {
                 var StartLayer = gui_start.addFolder(area_name);
                 var EndLayer = gui_end.addFolder(area_name);
 
-                var AreaList = this.AreaCityCodeMap[area_name].split(',');
+                var AreaList = AreaCityCodeMap[area_name].split(',');
                 AreaList.forEach(city_name => {
-                    var ceid = this.CityEndCodeMap[city_name];
-                    var csid = this.CityStartCodeMap[city_name];
+                    var ceid = CityEndCodeMap[city_name];
+                    var csid = CityStartCodeMap[city_name];
                     //console.log(cid);
                     var current_start_city = new Object();
                     var current_end_city = new Object();
@@ -691,9 +504,10 @@ module ECS {
         }
 
         ListenYearChange(year: string, init: boolean = false) {
-            //Global Data
-            var global_data = (<GlobalComponent>this.GlobalDatas.components.get("global")).data;
-            var moveData = global_data.get("moveData" + year);
+
+            let preloaded_data = this.GlobalParams.get("preloaded_data");
+            let moveData = preloaded_data.get("moveData" + year);
+            let CityEndCodeMap = preloaded_data.get("cityendcodemap");
 
             //convert gis data to 3d sphere data
             var moveDataForSphere = new Utils.HashSet<ThreeJsMoveEntity>();
@@ -703,8 +517,8 @@ module ECS {
                 var current_humanmove = <HumanMovementDataComponent>m.components.get("humanmove");
                 //console.log("b:" + (<HumanMovementDataComponent>m.components.get("humanmove")).b_id + ",a:" + (<HumanMovementDataComponent>m.components.get("humanmove")).a_id);
 
-                for (var key in this.CityEndCodeMap) {
-                    if (this.CityEndCodeMap[key] == current_humanmove.a_id) {
+                for (var key in CityEndCodeMap) {
+                    if (CityEndCodeMap[key] == current_humanmove.a_id) {
                         var start_lon = current_humanmove.b_lon;
                         var start_lat = current_humanmove.b_lat;
                         var end_lon = current_humanmove.a_lon;
@@ -723,6 +537,8 @@ module ECS {
         }
 
         InitThreeJs() {
+
+            let preloaded_data = this.GlobalParams.get("preloaded_data");
 
             var glContainer = document.getElementById('glContainer');
             var dpr = window.devicePixelRatio ? window.devicePixelRatio : 1;
@@ -759,9 +575,11 @@ module ECS {
             var rotating = new THREE.Object3D();
             scene.add(rotating);
 
+
+            //preload 16k data
+            let earth_texture = preloaded_data.get("earthtexture");
             var mapMaterial = new THREE.MeshBasicMaterial({
-                //map: new THREE.TextureLoader().load('./images/2_no_clouds_4k.jpg'),
-                map: new THREE.TextureLoader().load('./images/2_no_clouds_16k.jpg'),
+                map: earth_texture,   //new THREE.TextureLoader().load('./images/2_no_clouds_16k.jpg'),
                 polygonOffset: true,
                 polygonOffsetFactor: 1,
                 polygonOffsetUnits: 1
@@ -1013,6 +831,7 @@ module ECS {
 
         Execute() {
             super.Execute();
+            this.initPreloadedData();
             this.InitThreeJs();
             this.initUi();
             this.animate();
