@@ -1108,11 +1108,15 @@ var ECS;
             indexedMapTexture.magFilter = THREE.NearestFilter;
             indexedMapTexture.minFilter = THREE.NearestFilter;
             //clouds
-            var cloudsMesh = new THREE.Mesh(new THREE.SphereGeometry(radius + 1, segments, segments), new THREE.MeshPhongMaterial({
-                map: new THREE.TextureLoader().load( /*'./images/fair_clouds_4k.png'*/),
-                transparent: true
-            }));
-            rotating.add(cloudsMesh);
+            // var cloudsMesh = new THREE.Mesh(
+            //     new THREE.SphereGeometry(radius + 1, segments, segments),
+            //     new THREE.MeshPhongMaterial({
+            //         map: new THREE.TextureLoader().load('./images/fair_clouds_4k.png'),
+            //         transparent: true
+            //     })
+            // );
+            // rotating.add(cloudsMesh)
+            //atmosphere
             var atmosphereMaterial = new THREE.ShaderMaterial({
                 vertexShader: document.getElementById('vertexShaderAtmosphere').textContent,
                 fragmentShader: document.getElementById('fragmentShaderAtmosphere').textContent,
@@ -1136,7 +1140,7 @@ var ECS;
             //this.VisualizationLine(lineArray);
             //	-----------------------------------------------------------------------------
             //	Setup renderer
-            var renderer = new THREE.WebGLRenderer({ antialias: false });
+            var renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setPixelRatio(dpr);
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.autoClear = false;
@@ -1165,7 +1169,7 @@ var ECS;
             this.GlobalParams.set("latStamp", 0);
             this.GlobalParams.set("camera", camera);
             this.GlobalParams.set("renderer", renderer);
-            this.GlobalParams.set("cloudsMesh", cloudsMesh);
+            //this.GlobalParams.set("cloudsMesh", cloudsMesh);
             this.GlobalParams.set("tileGroup", tileGroup);
             this.GlobalParams.set("tileGroups", tileGroups);
             this.GlobalParams.set("ZOOM_SHIFT_SIZE", ZOOM_SHIFT_SIZE);
@@ -1186,7 +1190,7 @@ var ECS;
             var camera = this.GlobalParams.get("camera");
             var renderer = this.GlobalParams.get("renderer");
             var scene = this.GlobalParams.get("scene");
-            var cloudMesh = this.GlobalParams.get("cloudsMesh");
+            //var cloudMesh = this.GlobalParams.get("cloudsMesh");
             var EventListenerGlobalParams = this.MainSystem.OtherSystems.get("eventlistener").GlobalParams;
             var rotateVX = EventListenerGlobalParams.get("rotateVX");
             var rotateVY = EventListenerGlobalParams.get("rotateVY");
@@ -1208,7 +1212,7 @@ var ECS;
             var controls = this.GlobalParams.get("controls");
             var targetPos = this.GlobalParams.get("targetPos");
             this.GlobalParams.set("timeNow", Date.now());
-            cloudMesh.rotation.y += (1 / 16 * (this.GlobalParams.get("timeNow") - this.GlobalParams.get("timeLast"))) / 1000;
+            //cloudMesh.rotation.y += (1 / 16 * (this.GlobalParams.get("timeNow") - this.GlobalParams.get("timeLast"))) / 1000;
             var dist = new THREE.Vector3().copy(controls.object.position).sub(controls.target).length();
             var zoom = Math.floor(Math.max(Math.min(Math.floor(15 - Math.log2(dist)), ZOOM_MIN + ZOOM_SHIFT_SIZE), ZOOM_MIN));
             var latStamp = this.GlobalParams.get("latStamp");
