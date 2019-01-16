@@ -612,16 +612,20 @@ var ECS;
         function ThreeJsSystem() {
             var _this = _super.call(this, "threejs") || this;
             _this.animate = function () {
-                _this.AnimeUpdate();
+                _this.animeUpdate();
                 _this.render();
                 requestAnimationFrame(_this.animate);
+                //statistic fps
                 var stats = _this.GlobalParams.get("stats");
                 stats.update();
+                //sphere update
                 _this.GlobalParams.get("rotating").traverse(function (mesh) {
                     if (mesh.update !== undefined) {
                         mesh.update();
                     }
                 });
+                _this.updateAnnotationOpacity();
+                _this.updateScreenPosition();
             };
             _this.GlobalParams = new Utils.HashSet();
             return _this;
@@ -1009,6 +1013,33 @@ var ECS;
                 });
             });
         };
+        ThreeJsSystem.prototype.initCanvasText = function () {
+            var container = document.getElementById("cvsContainer");
+            container.hidden = false;
+            var canvas = document.getElementById("number");
+            var annotation = document.querySelector(".annotation");
+            this.GlobalParams.set("annotation", annotation);
+            var ctx = canvas.getContext("2d");
+            var x = 32;
+            var y = 32;
+            var radius = 30;
+            var startAngle = 0;
+            var endAngle = Math.PI * 2;
+            ctx.fillStyle = "rgb(0, 0, 0)";
+            ctx.beginPath();
+            ctx.arc(x, y, radius, startAngle, endAngle);
+            ctx.fill();
+            ctx.strokeStyle = "rgb(255, 255, 255)";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, startAngle, endAngle);
+            ctx.stroke();
+            ctx.fillStyle = "rgb(255, 255, 255)";
+            ctx.font = "32px sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("1", x, y);
+        };
         ThreeJsSystem.prototype.ListenYearChange = function (year, init) {
             if (init === void 0) { init = false; }
             var preloaded_data = this.GlobalParams.get("preloaded_data");
@@ -1038,7 +1069,7 @@ var ECS;
             if (!init)
                 this.UpdateLineMesh();
         };
-        ThreeJsSystem.prototype.InitThreeJs = function () {
+        ThreeJsSystem.prototype.initThreeJs = function () {
             var preloaded_data = this.GlobalParams.get("preloaded_data");
             var glContainer = document.getElementById('glContainer');
             var dpr = window.devicePixelRatio ? window.devicePixelRatio : 1;
@@ -1125,11 +1156,25 @@ var ECS;
             var atmosphere = new THREE.Mesh(sphere.geometry.clone(), atmosphereMaterial);
             atmosphere.scale.x = atmosphere.scale.y = atmosphere.scale.z = 1.8;
             rotating.add(atmosphere);
+            // Sprite
+            var numberTexture = new THREE.CanvasTexture(document.querySelector("#number"));
+            var spriteMaterial = new THREE.SpriteMaterial({
+                map: numberTexture,
+                alphaTest: 0.5,
+                transparent: true,
+                depthTest: false,
+                depthWrite: false
+            });
+            var sprite = new THREE.Sprite(spriteMaterial);
+            sprite.position.set(66, 63, -64);
+            sprite.scale.set(60, 60, 1);
+            rotating.add(sprite);
             //import year data
             this.ListenYearChange("2008", true);
             var visualizationMesh = new THREE.Object3D();
             this.GlobalParams.set("visualizationMesh", visualizationMesh);
             rotating.add(visualizationMesh);
+            rotating.updateMatrixWorld(true);
             this.GlobalParams.set("rotating", rotating);
             // //data visual
             //var lineArray = Utils.BuildSphereDataVizGeometries(moveDataForSphere);
@@ -1180,13 +1225,14 @@ var ECS;
             this.GlobalParams.set("earthSphere", sphere);
             this.GlobalParams.set("osmSwitch", false);
             this.GlobalParams.set("stats", stats);
+            this.GlobalParams.set("sprite", sprite);
             this.GlobalParams.set("timeLast", Date.now());
         };
         ThreeJsSystem.prototype.render = function () {
             this.GlobalParams.get("renderer").clear();
             this.GlobalParams.get("renderer").render(this.GlobalParams.get("scene"), this.GlobalParams.get("camera"));
         };
-        ThreeJsSystem.prototype.AnimeUpdate = function () {
+        ThreeJsSystem.prototype.animeUpdate = function () {
             var camera = this.GlobalParams.get("camera");
             var renderer = this.GlobalParams.get("renderer");
             var scene = this.GlobalParams.get("scene");
@@ -1255,10 +1301,44 @@ var ECS;
             this.GlobalParams.set("osmTile", osmTile);
             this.GlobalParams.set("camera", camera);
         };
+        ThreeJsSystem.prototype.updateAnnotationOpacity = function () {
+            var sprite = this.GlobalParams.get("sprite");
+            var sprite_position = new THREE.Vector3();
+            sprite_position.setFromMatrixPosition(sprite.matrixWorld);
+            var camera = this.GlobalParams.get("camera");
+            var mesh = this.GlobalParams.get("rotating");
+            var meshDistance = camera.position.distanceTo(mesh.position);
+            var spriteDistance = camera.position.distanceTo(sprite_position);
+            var spriteBehindObject = spriteDistance > meshDistance;
+            this.GlobalParams.set("spriteBehindObject", spriteBehindObject);
+            sprite.material.opacity = spriteBehindObject ? 0.25 : 1;
+            // Do you want a number that changes size according to its position?
+            // Comment out the following line and the `::before` pseudo-element.
+            sprite.material.opacity = 0;
+            this.GlobalParams.set("sprite", sprite);
+        };
+        ThreeJsSystem.prototype.updateScreenPosition = function () {
+            var sprite = this.GlobalParams.get("sprite");
+            var vector = new THREE.Vector3();
+            vector.setFromMatrixPosition(sprite.matrixWorld);
+            var canvas = this.GlobalParams.get("renderer").domElement;
+            var annotation = this.GlobalParams.get("annotation");
+            var spriteBehindObject = this.GlobalParams.get("spriteBehindObject");
+            var camera = this.GlobalParams.get("camera");
+            var rotating = this.GlobalParams.get("rotating");
+            vector.project(camera);
+            vector.x = (0.5 + vector.x / 2) * (canvas.width / window.devicePixelRatio);
+            vector.y = (0.5 - vector.y / 2) * (canvas.height / window.devicePixelRatio);
+            annotation.style.top = vector.y + "px";
+            annotation.style.left = vector.x + "px";
+            annotation.style.opacity = spriteBehindObject ? 0.25 : 1;
+            this.GlobalParams.set("annotation", annotation);
+        };
         ThreeJsSystem.prototype.Execute = function () {
             _super.prototype.Execute.call(this);
             this.initPreloadedData();
-            this.InitThreeJs();
+            this.initCanvasText();
+            this.initThreeJs();
             this.initUi();
             this.animate();
         };

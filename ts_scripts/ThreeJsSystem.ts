@@ -502,6 +502,40 @@ module ECS {
             });
         }
 
+        initCanvasText() {
+            
+            var container = document.getElementById("cvsContainer");
+            container.hidden = false;
+            var canvas = <HTMLCanvasElement>document.getElementById("number");
+
+            let annotation = document.querySelector(".annotation");
+            this.GlobalParams.set("annotation", annotation);
+
+            var ctx = canvas.getContext("2d");
+            var x = 32;
+            var y = 32;
+            var radius = 30;
+            var startAngle = 0;
+            var endAngle = Math.PI * 2;
+
+            ctx.fillStyle = "rgb(0, 0, 0)";
+            ctx.beginPath();
+            ctx.arc(x, y, radius, startAngle, endAngle);
+            ctx.fill();
+
+            ctx.strokeStyle = "rgb(255, 255, 255)";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, startAngle, endAngle);
+            ctx.stroke();
+
+            ctx.fillStyle = "rgb(255, 255, 255)";
+            ctx.font = "32px sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("1", x, y);
+        }
+
         ListenYearChange(year: string, init: boolean = false) {
 
             let preloaded_data = this.GlobalParams.get("preloaded_data");
@@ -535,7 +569,7 @@ module ECS {
             if (!init) this.UpdateLineMesh();
         }
 
-        InitThreeJs() {
+        initThreeJs() {
 
             let preloaded_data = this.GlobalParams.get("preloaded_data");
 
@@ -643,12 +677,34 @@ module ECS {
             atmosphere.scale.x = atmosphere.scale.y = atmosphere.scale.z = 1.8;
             rotating.add(atmosphere);
 
+
+            // Sprite
+            var numberTexture = new THREE.CanvasTexture(
+                document.querySelector("#number"));
+
+
+            var spriteMaterial = new THREE.SpriteMaterial({
+                map: numberTexture,
+                alphaTest: 0.5,
+                transparent: true,
+                depthTest: false,
+                depthWrite: false
+            });
+
+
+            var sprite = new THREE.Sprite(spriteMaterial);
+            sprite.position.set(66, 63, -64);
+            sprite.scale.set(60, 60, 1);
+
+            rotating.add(sprite);
+
             //import year data
             this.ListenYearChange("2008", true);
 
             var visualizationMesh = new THREE.Object3D();
             this.GlobalParams.set("visualizationMesh", visualizationMesh);
             rotating.add(visualizationMesh);
+            rotating.updateMatrixWorld(true);
             this.GlobalParams.set("rotating", rotating);
 
             // //data visual
@@ -694,6 +750,7 @@ module ECS {
 
 
             var controls = new THREE.EarthControls(camera, renderer.domElement);
+            
             glContainer.appendChild(renderer.domElement);
             var stats = new Stats();
             glContainer.appendChild(stats.dom);
@@ -716,6 +773,7 @@ module ECS {
             this.GlobalParams.set("earthSphere", sphere);
             this.GlobalParams.set("osmSwitch", false);
             this.GlobalParams.set("stats", stats);
+            this.GlobalParams.set("sprite", sprite);
             this.GlobalParams.set("timeLast", Date.now());
         }
 
@@ -724,7 +782,7 @@ module ECS {
             this.GlobalParams.get("renderer").render(this.GlobalParams.get("scene"), this.GlobalParams.get("camera"));
         }
 
-        AnimeUpdate() {
+        animeUpdate() {
             var camera = this.GlobalParams.get("camera");
             var renderer = this.GlobalParams.get("renderer");
             var scene = this.GlobalParams.get("scene");
@@ -808,28 +866,81 @@ module ECS {
             this.GlobalParams.set("camera", camera);
         }
 
+        updateAnnotationOpacity() {
+            let sprite = this.GlobalParams.get("sprite");
+            let sprite_position = new THREE.Vector3();
+            sprite_position.setFromMatrixPosition(sprite.matrixWorld);
+
+            let camera = this.GlobalParams.get("camera");
+            let mesh = this.GlobalParams.get("rotating");
+
+            let meshDistance = camera.position.distanceTo(mesh.position);
+            let spriteDistance = camera.position.distanceTo(sprite_position);
+            let spriteBehindObject = spriteDistance > meshDistance;
+
+            this.GlobalParams.set("spriteBehindObject", spriteBehindObject);
+
+            
+            sprite.material.opacity = spriteBehindObject ? 0.25 : 1;
+       
+            // Do you want a number that changes size according to its position?
+            // Comment out the following line and the `::before` pseudo-element.
+            sprite.material.opacity = 0;
+            this.GlobalParams.set("sprite",sprite);
+        }
+
+        updateScreenPosition() {
+            let sprite = this.GlobalParams.get("sprite");
+            let vector = new THREE.Vector3();
+            vector.setFromMatrixPosition(sprite.matrixWorld);
+
+            let canvas = this.GlobalParams.get("renderer").domElement;
+            let annotation = this.GlobalParams.get("annotation");
+            let spriteBehindObject = this.GlobalParams.get("spriteBehindObject");
+            let camera = this.GlobalParams.get("camera");
+            let rotating = this.GlobalParams.get("rotating");
+
+            vector.project(camera);
+
+       
+            vector.x = (0.5 + vector.x / 2) * (canvas.width / window.devicePixelRatio) ;
+            vector.y = (0.5 - vector.y / 2) * (canvas.height / window.devicePixelRatio) ;
+            
+
+            annotation.style.top = vector.y + "px";
+            annotation.style.left = vector.x + "px";
+            annotation.style.opacity = spriteBehindObject ? 0.25 : 1;
+            this.GlobalParams.set("annotation",annotation);
+        }
+
         animate = () => {
 
-            this.AnimeUpdate();
+            this.animeUpdate();
 
             this.render();
 
             requestAnimationFrame(this.animate);
 
+            //statistic fps
             var stats = this.GlobalParams.get("stats");
             stats.update();
 
+            //sphere update
             this.GlobalParams.get("rotating").traverse(function (mesh) {
                 if (mesh.update !== undefined) {
                     mesh.update();
                 }
             });
+
+            this.updateAnnotationOpacity();
+            this.updateScreenPosition();
         }
 
         Execute() {
             super.Execute();
             this.initPreloadedData();
-            this.InitThreeJs();
+            this.initCanvasText();
+            this.initThreeJs();
             this.initUi();
             this.animate();
         }
