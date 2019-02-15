@@ -3,6 +3,7 @@
  *  ThreeJsSystem.ts
  *  game execute logical
  *
+ *  This is CheckMode
  * ========================================================================= */
 /// <reference path="./Entity.ts" />
 /// <reference path="./Component.ts" />
@@ -394,12 +395,25 @@ module ECS {
 
         initUi() {
 
+            var ModechangernumC = 1;
+            var ModechangernumD = 0;
+
             //init user UI
             var GlobalParams = this.GlobalParams;
             var osmSwitch = GlobalParams.get("osmSwitch");
             var gui_year_text = {
                 'year': 2008,
                 LoadOSM: osmSwitch
+            }
+
+            var gui_modechanger_text ={
+                'View' : true,
+                'Gensan' : false
+            }
+
+            var testtext = {
+                'thisistest' : 22222,
+                'thisistest2' : 33333
             }
 
             let preloaded_data = GlobalParams.get("preloaded_data");
@@ -414,28 +428,109 @@ module ECS {
                 endParam[CityNames[i]] = false;
             }
 
+
+
             //GlobalParams.set("earthParam", earthParam);
 
 
             //GUI
 
+            
 
-            var gui_end = new dat.GUI();
-            var gui_start = new dat.GUI();
-            var gui_year = new dat.GUI();
+            var gui_end = new dat.GUI({width:150});
+            var gui_start = new dat.GUI({width:150});
+            var gui_modechanger = new dat.GUI({width:150});
+            var gui_yearA = new dat.GUI();
+            //var gui_yearB = new dat.GUI();
 
-
-
-            var yearbar = gui_year.add(gui_year_text, 'year', 2008, 2017).listen().onChange((val) => {
+            var yearbar = gui_yearA.add(gui_year_text, 'year', 2008, 2017).listen().onChange((val) => {
                 var year = Math.round(val);
                 //console.log(year);
                 this.ListenYearChange(year.toString());
             });
 
-            var osm_map = gui_year.add(gui_year_text, "LoadOSM", false).listen().onChange((val) => {
+            var osm_map = gui_yearA.add(gui_year_text, "LoadOSM", false).listen().onChange((val) => {
                 GlobalParams.set("osmSwitch", val);
             });
+            var test = gui_yearA.add(testtext,'thisistest',11111,44444);
+            gui_yearA.remove(test);
+            var test2 = gui_yearA.add(testtext,'thisistest2',22222,55555);
+            gui_yearA.remove(test2);
 
+
+            var View = gui_modechanger.add(gui_modechanger_text,'View').listen().onChange((val) => {
+                if(ModechangernumC == 1 && ModechangernumD == 0){
+                    ModechangernumC -= 1;
+                    Gensan.setValue(!val);
+                    console.log(!val+":::::"+val);
+                    gui_yearA.remove(yearbar);
+                    gui_yearA.remove(osm_map);
+                }else if(ModechangernumC == 0 && ModechangernumD == 0){
+                    ModechangernumC += 1;
+                    yearbar = gui_yearA.add(gui_year_text, 'year', 2008, 2017).listen().onChange((val) => {
+                        var year = Math.round(val);
+                        //console.log(year);
+                        this.ListenYearChange(year.toString());
+                    });
+                    osm_map = gui_yearA.add(gui_year_text, "LoadOSM", false).listen().onChange((val) => {
+                        GlobalParams.set("osmSwitch", val);
+                    });
+                }else if(ModechangernumC == 1 && ModechangernumD == 1){
+                    ModechangernumC -= 1;
+                    gui_yearA.remove(yearbar);
+                    gui_yearA.remove(osm_map);
+                }else if(ModechangernumC == 0 && ModechangernumD == 1){
+                    ModechangernumC += 1;
+                    Gensan.setValue(!val);
+                    yearbar = gui_yearA.add(gui_year_text, 'year', 2008, 2017).listen().onChange((val) => {
+                        var year = Math.round(val);
+                        //console.log(year);
+                        this.ListenYearChange(year.toString());
+                    });
+                    osm_map = gui_yearA.add(gui_year_text, "LoadOSM", false).listen().onChange((val) => {
+                        GlobalParams.set("osmSwitch", val);
+                    });
+                }
+                // contorl
+
+            });
+
+            var Gensan = gui_modechanger.add(gui_modechanger_text,'Gensan').listen().onChange((val) =>{
+                if(ModechangernumC == 0 && ModechangernumD == 0){
+                    ModechangernumD +=1;
+                    test = gui_yearA.add(testtext,'thisistest',11111,44444);
+                    test2 = gui_yearA.add(testtext,'thisistest2',22222,55555);
+                }else if(ModechangernumC ==0 && ModechangernumD == 1){
+                    ModechangernumD -=1;
+                    View.setValue(!val);
+                    gui_yearA.remove(test);
+                    gui_yearA.remove(test2);
+                }else if(ModechangernumC == 1 && ModechangernumD ==0){
+                    ModechangernumD += 1;
+                    View.setValue(!val);
+                    test = gui_yearA.add(testtext,'thisistest',11111,44444);
+                    test2 = gui_yearA.add(testtext,'thisistest2',22222,55555);
+                }else if(ModechangernumC == 1 && ModechangernumD == 1){
+                    ModechangernumD -= 1;
+                    gui_yearA.remove(test);
+                    gui_yearA.remove(test2);
+                }
+
+                // contorl
+
+            });
+            
+            /*
+            var yearbar = gui_yearA.add(gui_year_text, 'year', 2008, 2017).listen().onChange((val) => {
+                var year = Math.round(val);
+                //console.log(year);
+                this.ListenYearChange(year.toString());
+            });
+
+            var osm_map = gui_yearA.add(gui_year_text, "LoadOSM", false).listen().onChange((val) => {
+                GlobalParams.set("osmSwitch", val);
+            });
+            */
 
 
             var startArea = new Array();
