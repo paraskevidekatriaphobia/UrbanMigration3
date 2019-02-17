@@ -934,11 +934,10 @@ module ECS {
 
             //	-----------------------------------------------------------------------------
             //	Setup renderer
-            var renderer = new THREE.WebGLRenderer({ antialias: false });
+            var renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setPixelRatio(dpr);
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.autoClear = false;
-
             renderer.sortObjects = false;
             renderer.generateMipmaps = false;
 
