@@ -416,6 +416,11 @@ module ECS {
                 'thisistest2' : 33333
             }
 
+            var gui_gensanmodeselect_text = {
+                'YearA' : 2008,
+                'YearB' : 2009
+            }
+
             let preloaded_data = GlobalParams.get("preloaded_data");
             let CityNames = preloaded_data.get("citynames");
             var startParam = new Object();
@@ -435,7 +440,7 @@ module ECS {
 
             //GUI
 
-            
+
 
             var gui_end = new dat.GUI({width:150});
             var gui_start = new dat.GUI({width:150});
@@ -452,23 +457,32 @@ module ECS {
             var osm_map = gui_yearA.add(gui_year_text, "LoadOSM", false).listen().onChange((val) => {
                 GlobalParams.set("osmSwitch", val);
             });
+
+
+            //gui3_modechange
+            /*
             var test = gui_yearA.add(testtext,'thisistest',11111,44444);
             gui_yearA.remove(test);
             var test2 = gui_yearA.add(testtext,'thisistest2',22222,55555);
             gui_yearA.remove(test2);
+            */
+            var gensanmodeselectA = gui_yearA.add(gui_gensanmodeselect_text,'YearA',2008,2017).step(1);
+            gui_yearA.remove(gensanmodeselectA);
+            var gensanmodeselectB = gui_yearA.add(gui_gensanmodeselect_text,'YearB',2008,2017).step(1);
+            gui_yearA.remove(gensanmodeselectB);
 
-
+           
             var View = gui_modechanger.add(gui_modechanger_text,'View').listen().onChange((val) => {
                 if(ModechangernumC == 1 && ModechangernumD == 0){
                     ModechangernumC -= 1;
                     Gensan.setValue(!val);
-                    console.log(!val+":::::"+val);
+                    //console.log(!val+":::::"+val);
                     gui_yearA.remove(yearbar);
                     gui_yearA.remove(osm_map);
                 }else if(ModechangernumC == 0 && ModechangernumD == 0){
                     ModechangernumC += 1;
-                    yearbar = gui_yearA.add(gui_year_text, 'year', 2008, 2017).listen().onChange((val) => {
-                        var year = Math.round(val);
+                    yearbar = gui_yearA.add(gui_year_text, 'year', 2008, 2017).step(1).listen().onChange((val) => {
+                        var year = val;
                         //console.log(year);
                         this.ListenYearChange(year.toString());
                     });
@@ -482,8 +496,8 @@ module ECS {
                 }else if(ModechangernumC == 0 && ModechangernumD == 1){
                     ModechangernumC += 1;
                     Gensan.setValue(!val);
-                    yearbar = gui_yearA.add(gui_year_text, 'year', 2008, 2017).listen().onChange((val) => {
-                        var year = Math.round(val);
+                    yearbar = gui_yearA.add(gui_year_text, 'year', 2008, 2017).step(1).listen().onChange((val) => {
+                        var year = val;
                         //console.log(year);
                         this.ListenYearChange(year.toString());
                     });
@@ -498,22 +512,22 @@ module ECS {
             var Gensan = gui_modechanger.add(gui_modechanger_text,'Gensan').listen().onChange((val) =>{
                 if(ModechangernumC == 0 && ModechangernumD == 0){
                     ModechangernumD +=1;
-                    test = gui_yearA.add(testtext,'thisistest',11111,44444);
-                    test2 = gui_yearA.add(testtext,'thisistest2',22222,55555);
+                    gensanmodeselectA = gui_yearA.add(gui_gensanmodeselect_text,'YearA',2008,2017).step(1);
+                    gensanmodeselectB = gui_yearA.add(gui_gensanmodeselect_text,'YearB',2008,2017).step(1);
                 }else if(ModechangernumC ==0 && ModechangernumD == 1){
                     ModechangernumD -=1;
                     View.setValue(!val);
-                    gui_yearA.remove(test);
-                    gui_yearA.remove(test2);
+                    gui_yearA.remove(gensanmodeselectA);
+                    gui_yearA.remove(gensanmodeselectB);
                 }else if(ModechangernumC == 1 && ModechangernumD ==0){
                     ModechangernumD += 1;
                     View.setValue(!val);
-                    test = gui_yearA.add(testtext,'thisistest',11111,44444);
-                    test2 = gui_yearA.add(testtext,'thisistest2',22222,55555);
+                    gensanmodeselectA = gui_yearA.add(gui_gensanmodeselect_text,'YearA',2008,2017).step(1);
+                    gensanmodeselectB = gui_yearA.add(gui_gensanmodeselect_text,'YearB',2008,2017).step(1);
                 }else if(ModechangernumC == 1 && ModechangernumD == 1){
                     ModechangernumD -= 1;
-                    gui_yearA.remove(test);
-                    gui_yearA.remove(test2);
+                    gui_yearA.remove(gensanmodeselectA);
+                    gui_yearA.remove(gensanmodeselectB);
                 }
 
                 // contorl
