@@ -740,7 +740,11 @@ module ECS {
                         var start_lat = current_humanmove.b_lat;
                         var end_lon = current_humanmove.a_lon;
                         var end_lat = current_humanmove.a_lat;
-                        var num = current_humanmove.num - moveDataForSphere.get(current_humanmove.b_id + current_humanmove.a_id).num;
+                        //console.log(moveDataForSphere.get(current_humanmove.b_id+current_humanmove.a_id));
+                        if(moveDataForSphere.get(current_humanmove.b_id + current_humanmove.a_id)){
+                            var num = current_humanmove.num - moveDataForSphere.get(current_humanmove.b_id + current_humanmove.a_id).num;
+                            console.log(moveDataForSphere.get(current_humanmove.b_id + current_humanmove.a_id).num+"----"+ num);
+                        }
                         var start_pos = Utils.ConvertGISDataTo3DSphere(start_lon, start_lat);
                         var end_pos = Utils.ConvertGISDataTo3DSphere(end_lon, end_lat);
                         moveDataForSphere.set(current_humanmove.b_id + current_humanmove.a_id, new ThreeJsMoveEntity(current_humanmove.b_id, current_humanmove.a_id, [start_pos.x, start_pos.y, start_pos.z], [end_pos.x, end_pos.y, end_pos.z], num));
