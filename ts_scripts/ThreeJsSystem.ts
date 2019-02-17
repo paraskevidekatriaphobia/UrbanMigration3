@@ -3,6 +3,7 @@
  *  ThreeJsSystem.ts
  *  game execute logical
  *
+ *  This is CheckMode
  * ========================================================================= */
 /// <reference path="./Entity.ts" />
 /// <reference path="./Component.ts" />
@@ -13,7 +14,6 @@
 /// <reference path="./Utils.ts" />
 module ECS {
     declare var THREE: any;
-    declare var $: any;
     declare var Math: any;
     declare var Stats: any;
     declare var dat: any;
@@ -37,7 +37,7 @@ module ECS {
             return value % rangeSize;
         }
 
-        GetVisualizedMesh(lineArray: Utils.HashSet<any>, numberArray: Utils.HashSet<any>) {
+        GetVisualizedMesh(lineArray: Utils.HashSet<any>, numberArray: Utils.HashSet<any>, PorM: Utils.HashSet<any>) {
 
 
             var LineMeshArray = [];
@@ -60,19 +60,34 @@ module ECS {
 
                 var linePositions = [];
                 var lineColors = [];
+
+                var linechangecolor = PorM.get(k);
+
+                var linecR = 0;
+                var linecG = 0;
+                if(linechangecolor == 1){
+                    linecR = 255;
+                    linecG = 0;
+                }else if(linechangecolor == -1){
+                    linecR = 0;
+                    linecG = 255;
+                }
                 //	grab the colors from the vertices
+                var linesGeo = new THREE.LineGeometry();
                 for (let s of v.vertices) {
                     //console.log(s.x);
                     linePositions.push(s.x, s.y, s.z);
-                    lineColor.setHSL(0, 1.0, 0.5);
+                    lineColor.setRGB(linecR,linecG,0);
                     lineColors.push(lineColor.r, lineColor.g, lineColor.b);
                     lastColor = lineColor;
                     particleCol.setHSL(0.5, 1.0, 0.5);
+
+                    linesGeo.setColors(lineColors);
                 }
 
-                var linesGeo = new THREE.LineGeometry();
+                
                 linesGeo.setPositions(linePositions);
-                linesGeo.setColors(lineColors);
+                
 
 
 
@@ -192,7 +207,7 @@ module ECS {
         }
 
 
-        VisualizationLine(lineArray: Utils.HashSet<any>, numberArray: Utils.HashSet<any>) {
+        VisualizationLine(lineArray: Utils.HashSet<any>, numberArray: Utils.HashSet<any>, PorM: Utils.HashSet<any>) {
             var visualizationMesh = this.GlobalParams.get("visualizationMesh");
             //	clear children
             while (visualizationMesh.children.length > 0) {
@@ -202,7 +217,7 @@ module ECS {
 
 
             //	build the mesh
-            var mesh = this.GetVisualizedMesh(lineArray, numberArray);
+            var mesh = this.GetVisualizedMesh(lineArray, numberArray, PorM);
 
             //	add it to scene graph
             for (var i = 0; i < mesh.length; i++) {
@@ -352,6 +367,7 @@ module ECS {
             var moveDataForSphere = this.GlobalParams.get("moveDataForSphere");
             //console.log("/*---------population------------*/")
             var visual_line_array = new Utils.HashSet<number>();
+            var plusorminus_array = new Utils.HashSet<number>();
             //render line
             startSelectedList.forEach((sk, sv) => {
                 endSelectedList.forEach((ek, ev) => {
@@ -366,6 +382,11 @@ module ECS {
                         visual_line_array.set(sv + ev, parseInt(moveDataForSphere.get(sv + ev).num)); //linewidth--vi_li_array(key,num)
                         //console.log("window:" + window.devicePixelRatio);
                         lineArray.set(sv + ev, Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
+                        if(visual_line_array.get(sv+ev) >= 0){
+                            plusorminus_array.set(sv +ev, 1);
+                        }else if(visual_line_array.get(sv+ev) < 0){
+                            plusorminus_array.set(sv +ev, -1);
+                        }
                     }
                 });
             });
@@ -384,7 +405,73 @@ module ECS {
                 else visual_line_array.set(name, ((nub - minnumberoflinewidth) / (maxnumberoflinewidth - minnumberoflinewidth)) * (0.006 - 0.001) + 0.001);
             })
             //console.log("sum=" + sumnumberoflinewidth + ";maxnub=" + maxnumberoflinewidth + ";minnub=" + minnumberoflinewidth);
-            this.VisualizationLine(lineArray, visual_line_array);
+            this.VisualizationLine(lineArray, visual_line_array,plusorminus_array);
+        }
+
+        UpdateLineMeshForGensan() {
+            var lineArray = new Utils.HashSet<any>();
+            var moveDataForSphere = this.GlobalParams.get("moveDataForSphere");
+            //console.log("/*---------population------------*/")
+            var visual_line_array = new Utils.HashSet<number>();
+            var plusorminus_array = new Utils.HashSet<number>();
+            //var plusorminus = 1
+            //render line
+            startSelectedList.forEach((sk, sv) => {
+                endSelectedList.forEach((ek, ev) => {
+                    //console.log("start:"+sk+",end:"+ek);
+                    if (sk != ek) {
+                        //data visual
+                        //console.log(moveDataForSphere);
+                        //console.log(sk+ek);
+
+                        //add population to array
+                        //console.log(moveDataForSphere.get(sv+ev).num);
+                        visual_line_array.set(sv + ev, parseInt(moveDataForSphere.get(sv + ev).num)); //linewidth--vi_li_array(key,num)
+                        //console.log("window:" + window.devicePixelRatio);
+                        lineArray.set(sv + ev, Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
+                        if(visual_line_array.get(sv+ev) >= 0){
+                            plusorminus_array.set(sv +ev, 1);
+                        }else if(visual_line_array.get(sv+ev) < 0){
+                            plusorminus_array.set(sv +ev, -1);
+                        }
+                    }
+                });
+            });
+
+            var maxnumberoflinewidth = 0;
+            var minnumberoflinewidth = 1e9;
+
+            var maxnumberoflinewidth_minus = 0;    // -100     Because for Absolute value
+            var minnumberoflinewidth_minus = 0;    // -1
+
+            
+
+            //var maxminarray = new Array;
+            visual_line_array.forEach((name, nub) => {
+                if(nub >= 0 ){
+                    if (nub > maxnumberoflinewidth) maxnumberoflinewidth = nub;
+                    if (nub < minnumberoflinewidth) minnumberoflinewidth = nub;
+                }else{
+                    var nubabs = Math.abs(nub);
+                    if (nubabs > maxnumberoflinewidth_minus) maxnumberoflinewidth_minus = nubabs;
+                    if (nubabs < minnumberoflinewidth_minus) minnumberoflinewidth_minus = nubabs;
+                }
+                //console.log(name + ":" + nub);
+            });
+
+            visual_line_array.forEach((name, nub) => {
+                if(nub >= 0){
+                    if (maxnumberoflinewidth == minnumberoflinewidth) visual_line_array.set(name, 0.006)
+                    else visual_line_array.set(name, ((nub - minnumberoflinewidth) / (maxnumberoflinewidth - minnumberoflinewidth)) * (0.006 - 0.001) + 0.001);
+                }else{
+                    var nubabs = Math.abs(nub);
+                    if (maxnumberoflinewidth_minus == minnumberoflinewidth_minus) visual_line_array.set(name, 0.006)
+                    else visual_line_array.set(name, ((nubabs - minnumberoflinewidth_minus) / (maxnumberoflinewidth_minus - minnumberoflinewidth_minus)) * (0.006 - 0.001) + 0.001);
+    
+                }
+            })
+            //console.log("sum=" + sumnumberoflinewidth + ";maxnub=" + maxnumberoflinewidth + ";minnub=" + minnumberoflinewidth);
+            this.VisualizationLine(lineArray, visual_line_array,plusorminus_array);
         }
 
         initPreloadedData() {
@@ -394,12 +481,30 @@ module ECS {
 
         initUi() {
 
+            var ModechangernumC = 1;
+            var ModechangernumD = 0;
+
             //init user UI
             var GlobalParams = this.GlobalParams;
             var osmSwitch = GlobalParams.get("osmSwitch");
             var gui_year_text = {
                 'year': 2008,
                 LoadOSM: osmSwitch
+            }
+
+            var gui_modechanger_text ={
+                'View' : true,
+                'Gensan' : false
+            }
+
+            var testtext = {
+                'thisistest' : 22222,
+                'thisistest2' : 33333
+            }
+
+            var gui_gensanmodeselect_text = {
+                'YearA' : 2008,
+                'YearB' : 2009
             }
 
             let preloaded_data = GlobalParams.get("preloaded_data");
@@ -414,28 +519,132 @@ module ECS {
                 endParam[CityNames[i]] = false;
             }
 
+
+
             //GlobalParams.set("earthParam", earthParam);
 
 
             //GUI
 
 
-            var gui_end = new dat.GUI();
-            var gui_start = new dat.GUI();
-            var gui_year = new dat.GUI();
 
+            var gui_end = new dat.GUI({width:150});
+            var gui_start = new dat.GUI({width:150});
+            var gui_modechanger = new dat.GUI({width:150});
+            var gui_yearA = new dat.GUI();
+            //var gui_yearB = new dat.GUI();
 
-
-            var yearbar = gui_year.add(gui_year_text, 'year', 2008, 2017).listen().onChange((val) => {
+            var yearbar = gui_yearA.add(gui_year_text, 'year', 2008, 2017).listen().onChange((val) => {
                 var year = Math.round(val);
                 //console.log(year);
                 this.ListenYearChange(year.toString());
             });
 
-            var osm_map = gui_year.add(gui_year_text, "LoadOSM", false).listen().onChange((val) => {
+            var osm_map = gui_yearA.add(gui_year_text, "LoadOSM", false).listen().onChange((val) => {
                 GlobalParams.set("osmSwitch", val);
             });
 
+
+            //gui3_modechange
+            /*
+            var test = gui_yearA.add(testtext,'thisistest',11111,44444);
+            gui_yearA.remove(test);
+            var test2 = gui_yearA.add(testtext,'thisistest2',22222,55555);
+            gui_yearA.remove(test2);
+            */
+            var gensanmodeselectA = gui_yearA.add(gui_gensanmodeselect_text,'YearA',2008,2017).step(1);
+            gui_yearA.remove(gensanmodeselectA);
+            var gensanmodeselectB = gui_yearA.add(gui_gensanmodeselect_text,'YearB',2008,2017).step(1);
+            gui_yearA.remove(gensanmodeselectB);
+            var gensanyearA = 2008;
+            var gensanyearB = 2009;
+
+           
+            var View = gui_modechanger.add(gui_modechanger_text,'View').listen().onChange((val) => {
+                if(ModechangernumC == 1 && ModechangernumD == 0){
+                    ModechangernumC -= 1;
+                    Gensan.setValue(!val);
+                    //console.log(!val+":::::"+val);
+                    gui_yearA.remove(yearbar);
+                    gui_yearA.remove(osm_map);
+                }else if(ModechangernumC == 0 && ModechangernumD == 0){
+                    ModechangernumC += 1;
+                    yearbar = gui_yearA.add(gui_year_text, 'year', 2008, 2017).step(1).listen().onChange((val) => {
+                        var year = val;
+                        //console.log(year);
+                        this.ListenYearChange(year.toString());
+                    });
+                    osm_map = gui_yearA.add(gui_year_text, "LoadOSM", false).listen().onChange((val) => {
+                        GlobalParams.set("osmSwitch", val);
+                    });
+                }else if(ModechangernumC == 1 && ModechangernumD == 1){
+                    ModechangernumC -= 1;
+                    gui_yearA.remove(yearbar);
+                    gui_yearA.remove(osm_map);
+                }else if(ModechangernumC == 0 && ModechangernumD == 1){
+                    ModechangernumC += 1;
+                    Gensan.setValue(!val);
+                    yearbar = gui_yearA.add(gui_year_text, 'year', 2008, 2017).step(1).listen().onChange((val) => {
+                        var year = val;
+                        //console.log(year);
+                        this.ListenYearChange(year.toString());
+                    });
+                    osm_map = gui_yearA.add(gui_year_text, "LoadOSM", false).listen().onChange((val) => {
+                        GlobalParams.set("osmSwitch", val);
+                    });
+                }
+                // contorl
+
+            });
+
+            var Gensan = gui_modechanger.add(gui_modechanger_text,'Gensan').listen().onChange((val) =>{
+                if(ModechangernumC == 0 && ModechangernumD == 0){
+                    ModechangernumD +=1;
+                    gensanmodeselectA = gui_yearA.add(gui_gensanmodeselect_text,'YearA',2008,2017).step(1).listen().onChange((val) => {
+                        gensanyearA = val;
+                        this.ListenGensanYearChange(gensanyearA.toString(),gensanyearB.toString());
+                    });
+                    gensanmodeselectB = gui_yearA.add(gui_gensanmodeselect_text,'YearB',2008,2017).step(1).listen().onChange((val) => {
+                        gensanyearB = val;
+                        this.ListenGensanYearChange(gensanyearA.toString(),gensanyearB.toString());
+                    });
+                }else if(ModechangernumC ==0 && ModechangernumD == 1){
+                    ModechangernumD -=1;
+                    View.setValue(!val);
+                    gui_yearA.remove(gensanmodeselectA);
+                    gui_yearA.remove(gensanmodeselectB);
+                }else if(ModechangernumC == 1 && ModechangernumD ==0){
+                    ModechangernumD += 1;
+                    View.setValue(!val);
+                    gensanmodeselectA = gui_yearA.add(gui_gensanmodeselect_text,'YearA',2008,2017).step(1).listen().onChange((val) => {
+                        gensanyearA = val;
+                        this.ListenGensanYearChange(gensanyearA.toString(),gensanyearB.toString());
+                    });
+                    gensanmodeselectB = gui_yearA.add(gui_gensanmodeselect_text,'YearB',2008,2017).step(1).listen().onChange((val) => {
+                        gensanyearB = val;
+                        this.ListenGensanYearChange(gensanyearA.toString(),gensanyearB.toString());
+                    });
+                }else if(ModechangernumC == 1 && ModechangernumD == 1){
+                    ModechangernumD -= 1;
+                    gui_yearA.remove(gensanmodeselectA);
+                    gui_yearA.remove(gensanmodeselectB);
+                }
+
+                // contorl
+
+            });
+            
+            /*
+            var yearbar = gui_yearA.add(gui_year_text, 'year', 2008, 2017).listen().onChange((val) => {
+                var year = Math.round(val);
+                //console.log(year);
+                this.ListenYearChange(year.toString());
+            });
+
+            var osm_map = gui_yearA.add(gui_year_text, "LoadOSM", false).listen().onChange((val) => {
+                GlobalParams.set("osmSwitch", val);
+            });
+            */
 
 
             var startArea = new Array();
@@ -503,6 +712,40 @@ module ECS {
             });
         }
 
+        initCanvasText() {
+            
+            var container = document.getElementById("cvsContainer");
+            container.hidden = false;
+            var canvas = <HTMLCanvasElement>document.getElementById("number");
+
+            let annotation = document.querySelector(".annotation");
+            this.GlobalParams.set("annotation", annotation);
+
+            var ctx = canvas.getContext("2d");
+            var x = 32;
+            var y = 32;
+            var radius = 30;
+            var startAngle = 0;
+            var endAngle = Math.PI * 2;
+
+            ctx.fillStyle = "rgb(0, 0, 0)";
+            ctx.beginPath();
+            ctx.arc(x, y, radius, startAngle, endAngle);
+            ctx.fill();
+
+            ctx.strokeStyle = "rgb(255, 255, 255)";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, startAngle, endAngle);
+            ctx.stroke();
+
+            ctx.fillStyle = "rgb(255, 255, 255)";
+            ctx.font = "32px sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("1", x, y);
+        }
+
         ListenYearChange(year: string, init: boolean = false) {
 
             let preloaded_data = this.GlobalParams.get("preloaded_data");
@@ -534,6 +777,62 @@ module ECS {
             this.GlobalParams.set("moveDataForSphere", moveDataForSphere);
 
             if (!init) this.UpdateLineMesh();
+        }
+
+        ListenGensanYearChange(yearA: string, yearB:string, init: boolean = false) {
+
+            let preloaded_data = this.GlobalParams.get("preloaded_data");
+            let moveDataA = preloaded_data.get("moveData" + yearA);
+            let moveDataB = preloaded_data.get("moveData" + yearB);
+            let CityEndCodeMap = preloaded_data.get("cityendcodemap");
+
+            //convert gis data to 3d sphere data
+            var moveDataForSphere = new Utils.HashSet<ThreeJsMoveEntity>();
+
+            //load data from dataset
+            for (let m of moveDataA) {
+                var current_humanmove = <HumanMovementDataComponent>m.components.get("humanmove");
+                //console.log("b:" + (<HumanMovementDataComponent>m.components.get("humanmove")).b_id + ",a:" + (<HumanMovementDataComponent>m.components.get("humanmove")).a_id);
+
+                for (var key in CityEndCodeMap) {
+                    if (CityEndCodeMap[key] == current_humanmove.a_id) {
+                        var start_lon = current_humanmove.b_lon;
+                        var start_lat = current_humanmove.b_lat;
+                        var end_lon = current_humanmove.a_lon;
+                        var end_lat = current_humanmove.a_lat;
+                        var num = current_humanmove.num;
+                        var start_pos = Utils.ConvertGISDataTo3DSphere(start_lon, start_lat);
+                        var end_pos = Utils.ConvertGISDataTo3DSphere(end_lon, end_lat);
+                        moveDataForSphere.set(current_humanmove.b_id + current_humanmove.a_id, new ThreeJsMoveEntity(current_humanmove.b_id, current_humanmove.a_id, [start_pos.x, start_pos.y, start_pos.z], [end_pos.x, end_pos.y, end_pos.z], num));
+                    }
+                }
+            }
+
+            for (let n of moveDataB) {
+                var current_humanmove = <HumanMovementDataComponent>n.components.get("humanmove");
+                //console.log("b:" + (<HumanMovementDataComponent>m.components.get("humanmove")).b_id + ",a:" + (<HumanMovementDataComponent>m.components.get("humanmove")).a_id);
+
+                for (var key in CityEndCodeMap) {
+                    if (CityEndCodeMap[key] == current_humanmove.a_id) {
+                        var start_lon = current_humanmove.b_lon;
+                        var start_lat = current_humanmove.b_lat;
+                        var end_lon = current_humanmove.a_lon;
+                        var end_lat = current_humanmove.a_lat;
+                        //console.log(moveDataForSphere.get(current_humanmove.b_id+current_humanmove.a_id));
+                        if(moveDataForSphere.get(current_humanmove.b_id + current_humanmove.a_id)){
+                            var num = current_humanmove.num - moveDataForSphere.get(current_humanmove.b_id + current_humanmove.a_id).num;
+                            //console.log(moveDataForSphere.get(current_humanmove.b_id + current_humanmove.a_id).num+"::"+ num);
+                        }
+                        var start_pos = Utils.ConvertGISDataTo3DSphere(start_lon, start_lat);
+                        var end_pos = Utils.ConvertGISDataTo3DSphere(end_lon, end_lat);
+                        moveDataForSphere.set(current_humanmove.b_id + current_humanmove.a_id, new ThreeJsMoveEntity(current_humanmove.b_id, current_humanmove.a_id, [start_pos.x, start_pos.y, start_pos.z], [end_pos.x, end_pos.y, end_pos.z], num));
+                    }
+                }
+            }
+
+            this.GlobalParams.set("moveDataForSphere", moveDataForSphere);
+
+            if (!init) this.UpdateLineMeshForGensan();
         }
 
         InitThreeJs() {
@@ -625,16 +924,6 @@ module ECS {
 
             //clouds
 
-            var cloudsMesh = new THREE.Mesh(
-                new THREE.SphereGeometry(radius + 1, segments, segments),
-                new THREE.MeshPhongMaterial({
-                    map: new THREE.TextureLoader().load(/*'./images/fair_clouds_4k.png'*/),
-                    transparent: true
-                })
-            );
-            rotating.add(cloudsMesh)
-
-
             var atmosphereMaterial = new THREE.ShaderMaterial({
                 vertexShader: document.getElementById('vertexShaderAtmosphere').textContent,
                 fragmentShader: document.getElementById('fragmentShaderAtmosphere').textContent,
@@ -668,7 +957,7 @@ module ECS {
 
             //	-----------------------------------------------------------------------------
             //	Setup renderer
-            var renderer = new THREE.WebGLRenderer({ antialias: false });
+            var renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setPixelRatio(dpr);
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.autoClear = false;
@@ -708,7 +997,6 @@ module ECS {
             this.GlobalParams.set("latStamp", 0);
             this.GlobalParams.set("camera", camera);
             this.GlobalParams.set("renderer", renderer);
-            this.GlobalParams.set("cloudsMesh", cloudsMesh);
             this.GlobalParams.set("tileGroup", tileGroup);
             this.GlobalParams.set("tileGroups", tileGroups);
             this.GlobalParams.set("ZOOM_SHIFT_SIZE", ZOOM_SHIFT_SIZE);
@@ -725,13 +1013,10 @@ module ECS {
         render() {
             this.GlobalParams.get("renderer").clear();
             this.GlobalParams.get("renderer").render(this.GlobalParams.get("scene"), this.GlobalParams.get("camera"));
-        }
 
-        AnimeUpdate() {
             var camera = this.GlobalParams.get("camera");
             var renderer = this.GlobalParams.get("renderer");
             var scene = this.GlobalParams.get("scene");
-            var cloudMesh = this.GlobalParams.get("cloudsMesh");
             var EventListenerGlobalParams = (<EventListenerSystem>(<MainSystem>this.MainSystem).OtherSystems.get("eventlistener")).GlobalParams;
             var rotateVX = EventListenerGlobalParams.get("rotateVX");
             var rotateVY = EventListenerGlobalParams.get("rotateVY");
@@ -755,7 +1040,6 @@ module ECS {
 
 
             this.GlobalParams.set("timeNow", Date.now());
-            cloudMesh.rotation.y += (1 / 16 * (this.GlobalParams.get("timeNow") - this.GlobalParams.get("timeLast"))) / 1000;
 
 
             var dist = new THREE.Vector3().copy(controls.object.position).sub(controls.target).length();
@@ -813,7 +1097,6 @@ module ECS {
 
         animate = () => {
 
-            this.AnimeUpdate();
 
             this.render();
 
@@ -832,7 +1115,6 @@ module ECS {
         Execute() {
             super.Execute();
             this.initPreloadedData();
-            this.InitThreeJs();
             this.initUi();
             this.animate();
         }
