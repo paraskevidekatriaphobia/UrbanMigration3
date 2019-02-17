@@ -921,6 +921,48 @@ var ECS;
             //console.log("sum=" + sumnumberoflinewidth + ";maxnub=" + maxnumberoflinewidth + ";minnub=" + minnumberoflinewidth);
             this.VisualizationLine(lineArray, visual_line_array);
         };
+        ThreeJsSystem.prototype.UpdateLineMeshForGensan = function () {
+            var lineArray = new Utils.HashSet();
+            var moveDataForSphere = this.GlobalParams.get("moveDataForSphere");
+            //console.log("/*---------population------------*/")
+            var visual_line_array = new Utils.HashSet();
+            //render line
+            startSelectedList.forEach(function (sk, sv) {
+                endSelectedList.forEach(function (ek, ev) {
+                    //console.log("start:"+sk+",end:"+ek);
+                    if (sk != ek) {
+                        //data visual
+                        //console.log(moveDataForSphere);
+                        //console.log(sk+ek);
+                        //add population to array
+                        //console.log(moveDataForSphere.get(sv+ev).num);
+                        visual_line_array.set(sv + ev, parseInt(moveDataForSphere.get(sv + ev).num)); //linewidth--vi_li_array(key,num)
+                        //console.log("window:" + window.devicePixelRatio);
+                        lineArray.set(sv + ev, Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
+                    }
+                });
+            });
+            var maxnumberoflinewidth = 0;
+            var minnumberoflinewidth = 1e9;
+            //var maxminarray = new Array;
+            visual_line_array.forEach(function (name, nub) {
+                var nubabs = Math.abs(nub);
+                if (nubabs > maxnumberoflinewidth)
+                    maxnumberoflinewidth = nubabs;
+                if (nubabs < minnumberoflinewidth)
+                    minnumberoflinewidth = nubabs;
+                //console.log(name + ":" + nub);
+            });
+            visual_line_array.forEach(function (name, nub) {
+                var nubabs = Math.abs(nub);
+                if (maxnumberoflinewidth == minnumberoflinewidth)
+                    visual_line_array.set(name, 0.006);
+                else
+                    visual_line_array.set(name, ((nubabs - minnumberoflinewidth) / (maxnumberoflinewidth - minnumberoflinewidth)) * (0.006 - 0.001) + 0.001);
+            });
+            //console.log("sum=" + sumnumberoflinewidth + ";maxnub=" + maxnumberoflinewidth + ";minnub=" + minnumberoflinewidth);
+            this.VisualizationLine(lineArray, visual_line_array);
+        };
         ThreeJsSystem.prototype.initPreloadedData = function () {
             var preloaded_data = this.GlobalDatas.components.get("global").data;
             this.GlobalParams.set("preloaded_data", preloaded_data);
@@ -984,11 +1026,13 @@ var ECS;
             gui_yearA.remove(gensanmodeselectA);
             var gensanmodeselectB = gui_yearA.add(gui_gensanmodeselect_text, 'YearB', 2008, 2017).step(1);
             gui_yearA.remove(gensanmodeselectB);
+            var gensanyearA = 2008;
+            var gensanyearB = 2009;
             var View = gui_modechanger.add(gui_modechanger_text, 'View').listen().onChange(function (val) {
                 if (ModechangernumC == 1 && ModechangernumD == 0) {
                     ModechangernumC -= 1;
                     Gensan.setValue(!val);
-                    console.log(!val + ":::::" + val);
+                    //console.log(!val+":::::"+val);
                     gui_yearA.remove(yearbar);
                     gui_yearA.remove(osm_map);
                 }
@@ -1025,8 +1069,14 @@ var ECS;
             var Gensan = gui_modechanger.add(gui_modechanger_text, 'Gensan').listen().onChange(function (val) {
                 if (ModechangernumC == 0 && ModechangernumD == 0) {
                     ModechangernumD += 1;
-                    gensanmodeselectA = gui_yearA.add(gui_gensanmodeselect_text, 'YearA', 2008, 2017).step(1);
-                    gensanmodeselectB = gui_yearA.add(gui_gensanmodeselect_text, 'YearB', 2008, 2017).step(1);
+                    gensanmodeselectA = gui_yearA.add(gui_gensanmodeselect_text, 'YearA', 2008, 2017).step(1).listen().onChange(function (val) {
+                        gensanyearA = val;
+                        _this.ListenGensanYearChange(gensanyearA.toString(), gensanyearB.toString());
+                    });
+                    gensanmodeselectB = gui_yearA.add(gui_gensanmodeselect_text, 'YearB', 2008, 2017).step(1).listen().onChange(function (val) {
+                        gensanyearB = val;
+                        _this.ListenGensanYearChange(gensanyearA.toString(), gensanyearB.toString());
+                    });
                 }
                 else if (ModechangernumC == 0 && ModechangernumD == 1) {
                     ModechangernumD -= 1;
@@ -1037,8 +1087,14 @@ var ECS;
                 else if (ModechangernumC == 1 && ModechangernumD == 0) {
                     ModechangernumD += 1;
                     View.setValue(!val);
-                    gensanmodeselectA = gui_yearA.add(gui_gensanmodeselect_text, 'YearA', 2008, 2017).step(1);
-                    gensanmodeselectB = gui_yearA.add(gui_gensanmodeselect_text, 'YearB', 2008, 2017).step(1);
+                    gensanmodeselectA = gui_yearA.add(gui_gensanmodeselect_text, 'YearA', 2008, 2017).step(1).listen().onChange(function (val) {
+                        gensanyearA = val;
+                        _this.ListenGensanYearChange(gensanyearA.toString(), gensanyearB.toString());
+                    });
+                    gensanmodeselectB = gui_yearA.add(gui_gensanmodeselect_text, 'YearB', 2008, 2017).step(1).listen().onChange(function (val) {
+                        gensanyearB = val;
+                        _this.ListenGensanYearChange(gensanyearA.toString(), gensanyearB.toString());
+                    });
                 }
                 else if (ModechangernumC == 1 && ModechangernumD == 1) {
                     ModechangernumD -= 1;
@@ -1130,6 +1186,53 @@ var ECS;
                         var end_lon = current_humanmove.a_lon;
                         var end_lat = current_humanmove.a_lat;
                         var num = current_humanmove.num;
+                        var start_pos = Utils.ConvertGISDataTo3DSphere(start_lon, start_lat);
+                        var end_pos = Utils.ConvertGISDataTo3DSphere(end_lon, end_lat);
+                        moveDataForSphere.set(current_humanmove.b_id + current_humanmove.a_id, new ECS.ThreeJsMoveEntity(current_humanmove.b_id, current_humanmove.a_id, [start_pos.x, start_pos.y, start_pos.z], [end_pos.x, end_pos.y, end_pos.z], num));
+                    }
+                }
+            }
+            this.GlobalParams.set("moveDataForSphere", moveDataForSphere);
+            if (!init)
+                this.UpdateLineMesh();
+        };
+        ThreeJsSystem.prototype.ListenGensanYearChange = function (yearA, yearB, init) {
+            if (init === void 0) { init = false; }
+            var preloaded_data = this.GlobalParams.get("preloaded_data");
+            var moveDataA = preloaded_data.get("moveData" + yearA);
+            var moveDataB = preloaded_data.get("moveData" + yearB);
+            var CityEndCodeMap = preloaded_data.get("cityendcodemap");
+            //convert gis data to 3d sphere data
+            var moveDataForSphere = new Utils.HashSet();
+            //load data from dataset
+            for (var _i = 0, moveDataA_1 = moveDataA; _i < moveDataA_1.length; _i++) {
+                var m = moveDataA_1[_i];
+                var current_humanmove = m.components.get("humanmove");
+                //console.log("b:" + (<HumanMovementDataComponent>m.components.get("humanmove")).b_id + ",a:" + (<HumanMovementDataComponent>m.components.get("humanmove")).a_id);
+                for (var key in CityEndCodeMap) {
+                    if (CityEndCodeMap[key] == current_humanmove.a_id) {
+                        var start_lon = current_humanmove.b_lon;
+                        var start_lat = current_humanmove.b_lat;
+                        var end_lon = current_humanmove.a_lon;
+                        var end_lat = current_humanmove.a_lat;
+                        var num = current_humanmove.num;
+                        var start_pos = Utils.ConvertGISDataTo3DSphere(start_lon, start_lat);
+                        var end_pos = Utils.ConvertGISDataTo3DSphere(end_lon, end_lat);
+                        moveDataForSphere.set(current_humanmove.b_id + current_humanmove.a_id, new ECS.ThreeJsMoveEntity(current_humanmove.b_id, current_humanmove.a_id, [start_pos.x, start_pos.y, start_pos.z], [end_pos.x, end_pos.y, end_pos.z], num));
+                    }
+                }
+            }
+            for (var _a = 0, moveDataB_1 = moveDataB; _a < moveDataB_1.length; _a++) {
+                var n = moveDataB_1[_a];
+                var current_humanmove = n.components.get("humanmove");
+                //console.log("b:" + (<HumanMovementDataComponent>m.components.get("humanmove")).b_id + ",a:" + (<HumanMovementDataComponent>m.components.get("humanmove")).a_id);
+                for (var key in CityEndCodeMap) {
+                    if (CityEndCodeMap[key] == current_humanmove.a_id) {
+                        var start_lon = current_humanmove.b_lon;
+                        var start_lat = current_humanmove.b_lat;
+                        var end_lon = current_humanmove.a_lon;
+                        var end_lat = current_humanmove.a_lat;
+                        var num = current_humanmove.num - moveDataForSphere.get(current_humanmove.b_id + current_humanmove.a_id).num;
                         var start_pos = Utils.ConvertGISDataTo3DSphere(start_lon, start_lat);
                         var end_pos = Utils.ConvertGISDataTo3DSphere(end_lon, end_lat);
                         moveDataForSphere.set(current_humanmove.b_id + current_humanmove.a_id, new ECS.ThreeJsMoveEntity(current_humanmove.b_id, current_humanmove.a_id, [start_pos.x, start_pos.y, start_pos.z], [end_pos.x, end_pos.y, end_pos.z], num));
