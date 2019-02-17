@@ -38,7 +38,7 @@ module ECS {
             return value % rangeSize;
         }
 
-        GetVisualizedMesh(lineArray: Utils.HashSet<any>, numberArray: Utils.HashSet<any>) {
+        GetVisualizedMesh(lineArray: Utils.HashSet<any>, numberArray: Utils.HashSet<any>, PorM: Utils.HashSet<any>) {
 
 
             var LineMeshArray = [];
@@ -61,19 +61,34 @@ module ECS {
 
                 var linePositions = [];
                 var lineColors = [];
+
+                var linechangecolor = PorM.get(k);
+
+                var linecR = 0;
+                var linecG = 0;
+                if(linechangecolor == 1){
+                    linecR = 255;
+                    linecG = 0;
+                }else if(linechangecolor == -1){
+                    linecR = 0;
+                    linecG = 255;
+                }
                 //	grab the colors from the vertices
+                var linesGeo = new THREE.LineGeometry();
                 for (let s of v.vertices) {
                     //console.log(s.x);
                     linePositions.push(s.x, s.y, s.z);
-                    lineColor.setHSL(0, 1.0, 0.5);
+                    lineColor.setRGB(linecR,linecG,0);
                     lineColors.push(lineColor.r, lineColor.g, lineColor.b);
                     lastColor = lineColor;
                     particleCol.setHSL(0.5, 1.0, 0.5);
+
+                    linesGeo.setColors(lineColors);
                 }
 
-                var linesGeo = new THREE.LineGeometry();
+                
                 linesGeo.setPositions(linePositions);
-                linesGeo.setColors(lineColors);
+                
 
 
 
@@ -193,7 +208,7 @@ module ECS {
         }
 
 
-        VisualizationLine(lineArray: Utils.HashSet<any>, numberArray: Utils.HashSet<any>) {
+        VisualizationLine(lineArray: Utils.HashSet<any>, numberArray: Utils.HashSet<any>, PorM: Utils.HashSet<any>) {
             var visualizationMesh = this.GlobalParams.get("visualizationMesh");
             //	clear children
             while (visualizationMesh.children.length > 0) {
@@ -203,7 +218,7 @@ module ECS {
 
 
             //	build the mesh
-            var mesh = this.GetVisualizedMesh(lineArray, numberArray);
+            var mesh = this.GetVisualizedMesh(lineArray, numberArray, PorM);
 
             //	add it to scene graph
             for (var i = 0; i < mesh.length; i++) {
@@ -353,6 +368,7 @@ module ECS {
             var moveDataForSphere = this.GlobalParams.get("moveDataForSphere");
             //console.log("/*---------population------------*/")
             var visual_line_array = new Utils.HashSet<number>();
+            var plusorminus_array = new Utils.HashSet<number>();
             //render line
             startSelectedList.forEach((sk, sv) => {
                 endSelectedList.forEach((ek, ev) => {
@@ -367,6 +383,11 @@ module ECS {
                         visual_line_array.set(sv + ev, parseInt(moveDataForSphere.get(sv + ev).num)); //linewidth--vi_li_array(key,num)
                         //console.log("window:" + window.devicePixelRatio);
                         lineArray.set(sv + ev, Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
+                        if(visual_line_array.get(sv+ev) >= 0){
+                            plusorminus_array.set(sv +ev, 1);
+                        }else if(visual_line_array.get(sv+ev) < 0){
+                            plusorminus_array.set(sv +ev, -1);
+                        }
                     }
                 });
             });
@@ -385,7 +406,7 @@ module ECS {
                 else visual_line_array.set(name, ((nub - minnumberoflinewidth) / (maxnumberoflinewidth - minnumberoflinewidth)) * (0.006 - 0.001) + 0.001);
             })
             //console.log("sum=" + sumnumberoflinewidth + ";maxnub=" + maxnumberoflinewidth + ";minnub=" + minnumberoflinewidth);
-            this.VisualizationLine(lineArray, visual_line_array);
+            this.VisualizationLine(lineArray, visual_line_array,plusorminus_array);
         }
 
         UpdateLineMeshForGensan() {
@@ -393,6 +414,8 @@ module ECS {
             var moveDataForSphere = this.GlobalParams.get("moveDataForSphere");
             //console.log("/*---------population------------*/")
             var visual_line_array = new Utils.HashSet<number>();
+            var plusorminus_array = new Utils.HashSet<number>();
+            //var plusorminus = 1
             //render line
             startSelectedList.forEach((sk, sv) => {
                 endSelectedList.forEach((ek, ev) => {
@@ -407,27 +430,49 @@ module ECS {
                         visual_line_array.set(sv + ev, parseInt(moveDataForSphere.get(sv + ev).num)); //linewidth--vi_li_array(key,num)
                         //console.log("window:" + window.devicePixelRatio);
                         lineArray.set(sv + ev, Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
+                        if(visual_line_array.get(sv+ev) >= 0){
+                            plusorminus_array.set(sv +ev, 1);
+                        }else if(visual_line_array.get(sv+ev) < 0){
+                            plusorminus_array.set(sv +ev, -1);
+                        }
                     }
                 });
             });
 
             var maxnumberoflinewidth = 0;
             var minnumberoflinewidth = 1e9;
+
+            var maxnumberoflinewidth_minus = 0;    // -100     Because for Absolute value
+            var minnumberoflinewidth_minus = 0;    // -1
+
+            
+
             //var maxminarray = new Array;
             visual_line_array.forEach((name, nub) => {
-                var nubabs = Math.abs(nub);
-                if (nubabs > maxnumberoflinewidth) maxnumberoflinewidth = nubabs;
-                if (nubabs < minnumberoflinewidth) minnumberoflinewidth = nubabs;
+                if(nub >= 0 ){
+                    if (nub > maxnumberoflinewidth) maxnumberoflinewidth = nub;
+                    if (nub < minnumberoflinewidth) minnumberoflinewidth = nub;
+                }else{
+                    var nubabs = Math.abs(nub);
+                    if (nubabs > maxnumberoflinewidth_minus) maxnumberoflinewidth_minus = nubabs;
+                    if (nubabs < minnumberoflinewidth_minus) minnumberoflinewidth_minus = nubabs;
+                }
                 //console.log(name + ":" + nub);
             });
 
             visual_line_array.forEach((name, nub) => {
-                var nubabs = Math.abs(nub);
-                if (maxnumberoflinewidth == minnumberoflinewidth) visual_line_array.set(name, 0.006)
-                else visual_line_array.set(name, ((nubabs - minnumberoflinewidth) / (maxnumberoflinewidth - minnumberoflinewidth)) * (0.006 - 0.001) + 0.001);
+                if(nub >= 0){
+                    if (maxnumberoflinewidth == minnumberoflinewidth) visual_line_array.set(name, 0.006)
+                    else visual_line_array.set(name, ((nub - minnumberoflinewidth) / (maxnumberoflinewidth - minnumberoflinewidth)) * (0.006 - 0.001) + 0.001);
+                }else{
+                    var nubabs = Math.abs(nub);
+                    if (maxnumberoflinewidth_minus == minnumberoflinewidth_minus) visual_line_array.set(name, 0.006)
+                    else visual_line_array.set(name, ((nubabs - minnumberoflinewidth_minus) / (maxnumberoflinewidth_minus - minnumberoflinewidth_minus)) * (0.006 - 0.001) + 0.001);
+    
+                }
             })
             //console.log("sum=" + sumnumberoflinewidth + ";maxnub=" + maxnumberoflinewidth + ";minnub=" + minnumberoflinewidth);
-            this.VisualizationLine(lineArray, visual_line_array);
+            this.VisualizationLine(lineArray, visual_line_array,plusorminus_array);
         }
 
         initPreloadedData() {
@@ -743,7 +788,7 @@ module ECS {
                         //console.log(moveDataForSphere.get(current_humanmove.b_id+current_humanmove.a_id));
                         if(moveDataForSphere.get(current_humanmove.b_id + current_humanmove.a_id)){
                             var num = current_humanmove.num - moveDataForSphere.get(current_humanmove.b_id + current_humanmove.a_id).num;
-                            console.log(moveDataForSphere.get(current_humanmove.b_id + current_humanmove.a_id).num+"----"+ num);
+                            //console.log(moveDataForSphere.get(current_humanmove.b_id + current_humanmove.a_id).num+"::"+ num);
                         }
                         var start_pos = Utils.ConvertGISDataTo3DSphere(start_lon, start_lat);
                         var end_pos = Utils.ConvertGISDataTo3DSphere(end_lon, end_lat);
@@ -754,7 +799,7 @@ module ECS {
 
             this.GlobalParams.set("moveDataForSphere", moveDataForSphere);
 
-            if (!init) this.UpdateLineMesh();
+            if (!init) this.UpdateLineMeshForGensan();
         }
 
         InitThreeJs() {

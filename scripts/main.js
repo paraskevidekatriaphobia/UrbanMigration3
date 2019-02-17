@@ -634,7 +634,7 @@ var ECS;
             }
             return value % rangeSize;
         };
-        ThreeJsSystem.prototype.GetVisualizedMesh = function (lineArray, numberArray) {
+        ThreeJsSystem.prototype.GetVisualizedMesh = function (lineArray, numberArray, PorM) {
             var _this = this;
             var LineMeshArray = [];
             var randomColor = [0x6C6C6C]; //[0x1A62A5, 0x6C6C6C, 0xAEB21A, 0x1DB2C4, 0xB68982, 0x9FBAE3, 0xFD690F, 0xFEAE65, 0xDA5CB6, 0x279221, 0xD2D479, 0x89DC78, 0xBBBBBB, 0xCA0F1E, 0x814EAF, 0xB89FCB, 0x78433B];
@@ -651,19 +651,30 @@ var ECS;
                 var lastColor;
                 var linePositions = [];
                 var lineColors = [];
+                var linechangecolor = PorM.get(k);
+                var linecR = 0;
+                var linecG = 0;
+                if (linechangecolor == 1) {
+                    linecR = 255;
+                    linecG = 0;
+                }
+                else if (linechangecolor == -1) {
+                    linecR = 0;
+                    linecG = 255;
+                }
                 //	grab the colors from the vertices
+                var linesGeo = new THREE.LineGeometry();
                 for (var _i = 0, _a = v.vertices; _i < _a.length; _i++) {
                     var s_1 = _a[_i];
                     //console.log(s.x);
                     linePositions.push(s_1.x, s_1.y, s_1.z);
-                    lineColor.setHSL(0, 1.0, 0.5);
+                    lineColor.setRGB(linecR, linecG, 0);
                     lineColors.push(lineColor.r, lineColor.g, lineColor.b);
                     lastColor = lineColor;
                     particleCol.setHSL(0.5, 1.0, 0.5);
+                    linesGeo.setColors(lineColors);
                 }
-                var linesGeo = new THREE.LineGeometry();
                 linesGeo.setPositions(linePositions);
-                linesGeo.setColors(lineColors);
                 //get current number
                 var n = numberArray.get(k);
                 //define line material
@@ -752,7 +763,7 @@ var ECS;
             });
             return LineMeshArray;
         };
-        ThreeJsSystem.prototype.VisualizationLine = function (lineArray, numberArray) {
+        ThreeJsSystem.prototype.VisualizationLine = function (lineArray, numberArray, PorM) {
             var visualizationMesh = this.GlobalParams.get("visualizationMesh");
             //	clear children
             while (visualizationMesh.children.length > 0) {
@@ -760,7 +771,7 @@ var ECS;
                 visualizationMesh.remove(c);
             }
             //	build the mesh
-            var mesh = this.GetVisualizedMesh(lineArray, numberArray);
+            var mesh = this.GetVisualizedMesh(lineArray, numberArray, PorM);
             //	add it to scene graph
             for (var i = 0; i < mesh.length; i++) {
                 visualizationMesh.add(mesh[i]);
@@ -886,6 +897,7 @@ var ECS;
             var moveDataForSphere = this.GlobalParams.get("moveDataForSphere");
             //console.log("/*---------population------------*/")
             var visual_line_array = new Utils.HashSet();
+            var plusorminus_array = new Utils.HashSet();
             //render line
             startSelectedList.forEach(function (sk, sv) {
                 endSelectedList.forEach(function (ek, ev) {
@@ -899,6 +911,12 @@ var ECS;
                         visual_line_array.set(sv + ev, parseInt(moveDataForSphere.get(sv + ev).num)); //linewidth--vi_li_array(key,num)
                         //console.log("window:" + window.devicePixelRatio);
                         lineArray.set(sv + ev, Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
+                        if (visual_line_array.get(sv + ev) >= 0) {
+                            plusorminus_array.set(sv + ev, 1);
+                        }
+                        else if (visual_line_array.get(sv + ev) < 0) {
+                            plusorminus_array.set(sv + ev, -1);
+                        }
                     }
                 });
             });
@@ -919,13 +937,15 @@ var ECS;
                     visual_line_array.set(name, ((nub - minnumberoflinewidth) / (maxnumberoflinewidth - minnumberoflinewidth)) * (0.006 - 0.001) + 0.001);
             });
             //console.log("sum=" + sumnumberoflinewidth + ";maxnub=" + maxnumberoflinewidth + ";minnub=" + minnumberoflinewidth);
-            this.VisualizationLine(lineArray, visual_line_array);
+            this.VisualizationLine(lineArray, visual_line_array, plusorminus_array);
         };
         ThreeJsSystem.prototype.UpdateLineMeshForGensan = function () {
             var lineArray = new Utils.HashSet();
             var moveDataForSphere = this.GlobalParams.get("moveDataForSphere");
             //console.log("/*---------population------------*/")
             var visual_line_array = new Utils.HashSet();
+            var plusorminus_array = new Utils.HashSet();
+            //var plusorminus = 1
             //render line
             startSelectedList.forEach(function (sk, sv) {
                 endSelectedList.forEach(function (ek, ev) {
@@ -939,29 +959,53 @@ var ECS;
                         visual_line_array.set(sv + ev, parseInt(moveDataForSphere.get(sv + ev).num)); //linewidth--vi_li_array(key,num)
                         //console.log("window:" + window.devicePixelRatio);
                         lineArray.set(sv + ev, Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
+                        if (visual_line_array.get(sv + ev) >= 0) {
+                            plusorminus_array.set(sv + ev, 1);
+                        }
+                        else if (visual_line_array.get(sv + ev) < 0) {
+                            plusorminus_array.set(sv + ev, -1);
+                        }
                     }
                 });
             });
             var maxnumberoflinewidth = 0;
             var minnumberoflinewidth = 1e9;
+            var maxnumberoflinewidth_minus = 0; // -100     Because for Absolute value
+            var minnumberoflinewidth_minus = 0; // -1
             //var maxminarray = new Array;
             visual_line_array.forEach(function (name, nub) {
-                var nubabs = Math.abs(nub);
-                if (nubabs > maxnumberoflinewidth)
-                    maxnumberoflinewidth = nubabs;
-                if (nubabs < minnumberoflinewidth)
-                    minnumberoflinewidth = nubabs;
+                if (nub >= 0) {
+                    if (nub > maxnumberoflinewidth)
+                        maxnumberoflinewidth = nub;
+                    if (nub < minnumberoflinewidth)
+                        minnumberoflinewidth = nub;
+                }
+                else {
+                    var nubabs = Math.abs(nub);
+                    if (nubabs > maxnumberoflinewidth_minus)
+                        maxnumberoflinewidth_minus = nubabs;
+                    if (nubabs < minnumberoflinewidth_minus)
+                        minnumberoflinewidth_minus = nubabs;
+                }
                 //console.log(name + ":" + nub);
             });
             visual_line_array.forEach(function (name, nub) {
-                var nubabs = Math.abs(nub);
-                if (maxnumberoflinewidth == minnumberoflinewidth)
-                    visual_line_array.set(name, 0.006);
-                else
-                    visual_line_array.set(name, ((nubabs - minnumberoflinewidth) / (maxnumberoflinewidth - minnumberoflinewidth)) * (0.006 - 0.001) + 0.001);
+                if (nub >= 0) {
+                    if (maxnumberoflinewidth == minnumberoflinewidth)
+                        visual_line_array.set(name, 0.006);
+                    else
+                        visual_line_array.set(name, ((nub - minnumberoflinewidth) / (maxnumberoflinewidth - minnumberoflinewidth)) * (0.006 - 0.001) + 0.001);
+                }
+                else {
+                    var nubabs = Math.abs(nub);
+                    if (maxnumberoflinewidth_minus == minnumberoflinewidth_minus)
+                        visual_line_array.set(name, 0.006);
+                    else
+                        visual_line_array.set(name, ((nubabs - minnumberoflinewidth_minus) / (maxnumberoflinewidth_minus - minnumberoflinewidth_minus)) * (0.006 - 0.001) + 0.001);
+                }
             });
             //console.log("sum=" + sumnumberoflinewidth + ";maxnub=" + maxnumberoflinewidth + ";minnub=" + minnumberoflinewidth);
-            this.VisualizationLine(lineArray, visual_line_array);
+            this.VisualizationLine(lineArray, visual_line_array, plusorminus_array);
         };
         ThreeJsSystem.prototype.initPreloadedData = function () {
             var preloaded_data = this.GlobalDatas.components.get("global").data;
@@ -1235,7 +1279,7 @@ var ECS;
                         //console.log(moveDataForSphere.get(current_humanmove.b_id+current_humanmove.a_id));
                         if (moveDataForSphere.get(current_humanmove.b_id + current_humanmove.a_id)) {
                             var num = current_humanmove.num - moveDataForSphere.get(current_humanmove.b_id + current_humanmove.a_id).num;
-                            console.log(moveDataForSphere.get(current_humanmove.b_id + current_humanmove.a_id).num + "----" + num);
+                            //console.log(moveDataForSphere.get(current_humanmove.b_id + current_humanmove.a_id).num+"::"+ num);
                         }
                         var start_pos = Utils.ConvertGISDataTo3DSphere(start_lon, start_lat);
                         var end_pos = Utils.ConvertGISDataTo3DSphere(end_lon, end_lat);
@@ -1245,7 +1289,7 @@ var ECS;
             }
             this.GlobalParams.set("moveDataForSphere", moveDataForSphere);
             if (!init)
-                this.UpdateLineMesh();
+                this.UpdateLineMeshForGensan();
         };
         ThreeJsSystem.prototype.InitThreeJs = function () {
             var preloaded_data = this.GlobalParams.get("preloaded_data");
