@@ -1387,7 +1387,7 @@ var ECS;
             //this.VisualizationLine(lineArray);
             //	-----------------------------------------------------------------------------
             //	Setup renderer
-            var renderer = new THREE.WebGLRenderer({ antialias: true });
+            var renderer = new THREE.WebGLRenderer({ antialias: false });
             renderer.setPixelRatio(dpr);
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.autoClear = false;
