@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -634,7 +634,7 @@ var ECS;
             }
             return value % rangeSize;
         };
-        ThreeJsSystem.prototype.GetVisualizedMesh = function (lineArray, numberArray, thelineColor) {
+        ThreeJsSystem.prototype.GetVisualizedMesh = function (lineArray, numberArray, PorM) {
             var _this = this;
             var LineMeshArray = [];
             var randomColor = [0x6C6C6C]; //[0x1A62A5, 0x6C6C6C, 0xAEB21A, 0x1DB2C4, 0xB68982, 0x9FBAE3, 0xFD690F, 0xFEAE65, 0xDA5CB6, 0x279221, 0xD2D479, 0x89DC78, 0xBBBBBB, 0xCA0F1E, 0x814EAF, 0xB89FCB, 0x78433B];
@@ -651,24 +651,24 @@ var ECS;
                 var lastColor;
                 var linePositions = [];
                 var lineColors = [];
-                var linechangecolor = thelineColor.get(k);
-                /*var linecR = 0;
+                var linechangecolor = PorM.get(k);
+                var linecR = 0;
                 var linecG = 0;
-                if(linechangecolor == 1){
+                if (linechangecolor == 1) {
                     linecR = 255;
                     linecG = 0;
-                }else if(linechangecolor == -1){
+                }
+                else if (linechangecolor == -1) {
                     linecR = 0;
                     linecG = 255;
-                }*/
+                }
                 //	grab the colors from the vertices
                 var linesGeo = new THREE.LineGeometry();
                 for (var _i = 0, _a = v.vertices; _i < _a.length; _i++) {
                     var s_1 = _a[_i];
                     //console.log(s.x);
                     linePositions.push(s_1.x, s_1.y, s_1.z);
-                    //lineColor.setRGB(linecR,linecG,0);
-                    lineColor.setHSL(linechangecolor, 1.0, 0.5);
+                    lineColor.setRGB(linecR, linecG, 0);
                     lineColors.push(lineColor.r, lineColor.g, lineColor.b);
                     lastColor = lineColor;
                     particleCol.setHSL(0.5, 1.0, 0.5);
@@ -679,7 +679,7 @@ var ECS;
                 var n = numberArray.get(k);
                 //define line material
                 var matLine = new THREE.LineMaterial({
-                    //color: 0xffffff,
+                    color: 0xffffff,
                     linewidth: n,
                     vertexColors: THREE.VertexColors,
                     //resolution:  // to be set by renderer, eventually
@@ -763,7 +763,7 @@ var ECS;
             });
             return LineMeshArray;
         };
-        ThreeJsSystem.prototype.VisualizationLine = function (lineArray, numberArray, thelineColor) {
+        ThreeJsSystem.prototype.VisualizationLine = function (lineArray, numberArray, PorM) {
             var visualizationMesh = this.GlobalParams.get("visualizationMesh");
             //	clear children
             while (visualizationMesh.children.length > 0) {
@@ -771,7 +771,7 @@ var ECS;
                 visualizationMesh.remove(c);
             }
             //	build the mesh
-            var mesh = this.GetVisualizedMesh(lineArray, numberArray, thelineColor);
+            var mesh = this.GetVisualizedMesh(lineArray, numberArray, PorM);
             //	add it to scene graph
             for (var i = 0; i < mesh.length; i++) {
                 visualizationMesh.add(mesh[i]);
@@ -897,8 +897,7 @@ var ECS;
             var moveDataForSphere = this.GlobalParams.get("moveDataForSphere");
             //console.log("/*---------population------------*/")
             var visual_line_array = new Utils.HashSet();
-            //var plusorminus_array = new Utils.HashSet<number>();
-            var thelinecolorcontrol = new Utils.HashSet();
+            var plusorminus_array = new Utils.HashSet();
             //render line
             startSelectedList.forEach(function (sk, sv) {
                 endSelectedList.forEach(function (ek, ev) {
@@ -912,7 +911,12 @@ var ECS;
                         visual_line_array.set(sv + ev, parseInt(moveDataForSphere.get(sv + ev).num)); //linewidth--vi_li_array(key,num)
                         //console.log("window:" + window.devicePixelRatio);
                         lineArray.set(sv + ev, Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
-                        thelinecolorcontrol.set(sv + ev, 0);
+                        if (visual_line_array.get(sv + ev) >= 0) {
+                            plusorminus_array.set(sv + ev, 1);
+                        }
+                        else if (visual_line_array.get(sv + ev) < 0) {
+                            plusorminus_array.set(sv + ev, -1);
+                        }
                     }
                 });
             });
@@ -933,15 +937,14 @@ var ECS;
                     visual_line_array.set(name, ((nub - minnumberoflinewidth) / (maxnumberoflinewidth - minnumberoflinewidth)) * (0.006 - 0.001) + 0.001);
             });
             //console.log("sum=" + sumnumberoflinewidth + ";maxnub=" + maxnumberoflinewidth + ";minnub=" + minnumberoflinewidth);
-            this.VisualizationLine(lineArray, visual_line_array, thelinecolorcontrol);
+            this.VisualizationLine(lineArray, visual_line_array, plusorminus_array);
         };
         ThreeJsSystem.prototype.UpdateLineMeshForGensan = function () {
             var lineArray = new Utils.HashSet();
             var moveDataForSphere = this.GlobalParams.get("moveDataForSphere");
             //console.log("/*---------population------------*/")
             var visual_line_array = new Utils.HashSet();
-            //var plusorminus_array = new Utils.HashSet<number>();
-            var thelinecolorcontrol = new Utils.HashSet();
+            var plusorminus_array = new Utils.HashSet();
             //var plusorminus = 1
             //render line
             startSelectedList.forEach(function (sk, sv) {
@@ -956,11 +959,12 @@ var ECS;
                         visual_line_array.set(sv + ev, parseInt(moveDataForSphere.get(sv + ev).num)); //linewidth--vi_li_array(key,num)
                         //console.log("window:" + window.devicePixelRatio);
                         lineArray.set(sv + ev, Utils.BuildShpereDataVizGeometry(moveDataForSphere, sv + ev));
-                        /*if(visual_line_array.get(sv+ev) >= 0){
-                            plusorminus_array.set(sv +ev, 1);
-                        }else if(visual_line_array.get(sv+ev) < 0){
-                            plusorminus_array.set(sv +ev, -1);
-                        }*/
+                        if (visual_line_array.get(sv + ev) >= 0) {
+                            plusorminus_array.set(sv + ev, 1);
+                        }
+                        else if (visual_line_array.get(sv + ev) < 0) {
+                            plusorminus_array.set(sv + ev, -1);
+                        }
                     }
                 });
             });
@@ -991,7 +995,6 @@ var ECS;
                         visual_line_array.set(name, 0.006);
                     else
                         visual_line_array.set(name, ((nub - minnumberoflinewidth) / (maxnumberoflinewidth - minnumberoflinewidth)) * (0.006 - 0.001) + 0.001);
-                    thelinecolorcontrol.set(name, (1 / 3) - (maxnumberoflinewidth / nub) * (1 / 3));
                 }
                 else {
                     var nubabs = Math.abs(nub);
@@ -999,11 +1002,10 @@ var ECS;
                         visual_line_array.set(name, 0.006);
                     else
                         visual_line_array.set(name, ((nubabs - minnumberoflinewidth_minus) / (maxnumberoflinewidth_minus - minnumberoflinewidth_minus)) * (0.006 - 0.001) + 0.001);
-                    thelinecolorcontrol.set(name, (1 / 3) + (maxnumberoflinewidth_minus / nubabs) * (1 / 3));
                 }
             });
             //console.log("sum=" + sumnumberoflinewidth + ";maxnub=" + maxnumberoflinewidth + ";minnub=" + minnumberoflinewidth);
-            this.VisualizationLine(lineArray, visual_line_array, thelinecolorcontrol);
+            this.VisualizationLine(lineArray, visual_line_array, plusorminus_array);
         };
         ThreeJsSystem.prototype.initPreloadedData = function () {
             var preloaded_data = this.GlobalDatas.components.get("global").data;
