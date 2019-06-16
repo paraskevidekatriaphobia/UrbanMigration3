@@ -1908,7 +1908,7 @@ var entity_citymapping = new ECS.Entity("citymapping_entity");
 entity_citymapping.addComponent(new ECS.JsonDataComponent("./data/citymapping.json"));
 //texture 
 var entity_earthtexture = new ECS.Entity("earthtexture_entity");
-entity_earthtexture.addComponent(new ECS.TextureComponent("./images/2_no_clouds_16k.jpg"));
+entity_earthtexture.addComponent(new ECS.TextureComponent("./images/2_no_clouds_4k.jpg"));
 //declare urban migration data from json file(Year)
 var year_list = ["2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017"];
 var entity_year_list = [];
